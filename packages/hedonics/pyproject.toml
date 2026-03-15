@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hedonics"
-version = "0.1.3"
+version = "0.1.4"
 description = "Human Hedonics Teleology Classification System — classify software by the human purposes it serves"
 readme = "README.md"
 license = "MIT"

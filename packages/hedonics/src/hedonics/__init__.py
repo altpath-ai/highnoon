@@ -8,7 +8,7 @@ classifying software and human activity by purpose.
 Part of the High Noon project: https://github.com/altpath-ai/highnoon
 """
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from hedonics.taxonomy import DOMAINS, get_domain, list_domains
 from hedonics.htc import HTC
