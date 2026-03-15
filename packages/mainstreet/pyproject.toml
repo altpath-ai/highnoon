@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mainstreet"
-version = "0.1.1"
+version = "0.1.2"
 description = "Public policy hedonic assessment — evaluate whether policy serves Main Street's hedonic needs"
 readme = "README.md"
 license = "MIT"

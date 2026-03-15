@@ -8,4 +8,4 @@ to tools that serve your actual human purposes.
 https://altpath.ai | https://github.com/altpath-ai/highnoon
 """
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
