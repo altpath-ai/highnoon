@@ -12,192 +12,229 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
-
   .layout { display: flex; min-height: 100vh; }
 
-  /* Sidebar */
-  .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; overflow-y: auto; }
+  .sidebar { width: 300px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; overflow-y: auto; }
   .sidebar h1 { font-size: 1.4em; margin-bottom: 4px; }
-  .sidebar .subtitle { color: var(--muted); font-size: 0.85em; margin-bottom: 20px; }
-
-  .profile-section { margin-bottom: 20px; }
-  .profile-section h3 { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .domain-mini { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 0.85em; }
+  .sidebar .subtitle { color: var(--muted); font-size: 0.85em; margin-bottom: 16px; }
+  .profile-section { margin-bottom: 16px; }
+  .profile-section h3 { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .domain-mini { display: flex; align-items: center; gap: 6px; padding: 2px 0; font-size: 0.82em; }
   .domain-mini .code { color: var(--accent); font-weight: bold; min-width: 22px; }
-  .domain-mini .name { min-width: 90px; }
+  .domain-mini .name { min-width: 85px; }
   .domain-mini .bar-mini { height: 8px; border-radius: 4px; }
-  .domain-mini .score-mini { font-size: 0.8em; color: var(--muted); min-width: 20px; text-align: right; }
-  .gap-badge { background: var(--red); color: #fff; font-size: 0.65em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
-  .strength-badge { background: var(--green); color: #fff; font-size: 0.65em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
-
-  .cost-mini { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 0.85em; }
-  .blocker-tag { font-size: 0.7em; color: var(--red); }
-
+  .domain-mini .score-mini { font-size: 0.8em; color: var(--muted); min-width: 18px; text-align: right; }
+  .gap-badge { background: var(--red); color: #fff; font-size: 0.6em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+  .ok-badge { background: var(--green); color: #fff; font-size: 0.6em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+  .cost-mini { display: flex; align-items: center; gap: 6px; padding: 2px 0; font-size: 0.82em; }
+  .blocker-tag { font-size: 0.65em; color: var(--red); }
   .import-btn { background: var(--accent); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85em; cursor: pointer; width: 100%; margin-bottom: 8px; }
   .import-btn:hover { opacity: 0.9; }
   .file-input { display: none; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
 
-  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .main { flex: 1; padding: 20px 28px; overflow-y: auto; }
+  .main h2 { font-size: 1.2em; margin-bottom: 12px; }
 
-  /* Main content */
-  .main { flex: 1; padding: 24px 32px; overflow-y: auto; }
-  .main h2 { font-size: 1.3em; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .tab { padding: 10px 20px; cursor: pointer; color: var(--muted); font-size: 0.9em; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover { color: var(--text); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-  .feed-controls { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 20px; font-size: 0.8em; cursor: pointer; }
-  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,0.1); }
+  /* Exchange cards */
+  .exchange-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .exchange-card.primary { border-left: 3px solid var(--green); }
+  .exchange-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .exchange-title { font-weight: 600; font-size: 1.05em; }
+  .exchange-badge { background: rgba(63,185,80,0.15); color: var(--green); padding: 2px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; }
+  .exchange-desc { color: var(--muted); font-size: 0.9em; margin-bottom: 10px; }
+  .exchange-unlocks { font-size: 0.8em; color: var(--accent); margin-bottom: 10px; }
+  .exchange-items { margin-left: 8px; }
 
-  .feed-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; transition: border-color 0.2s; }
+  /* Feed items */
+  .feed-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; }
   .feed-item:hover { border-color: var(--accent); }
   .feed-item.tier1 { border-left: 3px solid var(--green); }
   .feed-item.tier2 { border-left: 3px solid var(--accent); }
   .feed-item.tier3 { border-left: 3px solid var(--yellow); }
-  .feed-item.tier4 { border-left: 3px solid var(--border); }
-
-  .feed-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-  .feed-title { font-weight: 600; font-size: 1.05em; flex: 1; }
-  .feed-score { background: var(--bg); padding: 2px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; color: var(--accent); white-space: nowrap; }
-
-  .feed-meta { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-  .type-badge { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
+  .feed-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .feed-title { font-weight: 600; font-size: 0.95em; flex: 1; }
+  .feed-score { font-size: 0.8em; font-weight: bold; color: var(--accent); }
+  .feed-meta { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .type-badge { font-size: 0.65em; padding: 2px 7px; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
   .type-news { background: rgba(88,166,255,0.15); color: var(--accent); }
   .type-research { background: rgba(188,140,255,0.15); color: var(--purple); }
   .type-tool { background: rgba(63,185,80,0.15); color: var(--green); }
   .type-policy { background: rgba(210,153,34,0.15); color: var(--yellow); }
   .type-dataset { background: rgba(139,148,158,0.15); color: var(--muted); }
   .type-resource { background: rgba(248,81,73,0.15); color: var(--red); }
+  .domain-tag { font-size: 0.65em; padding: 2px 7px; border-radius: 10px; background: rgba(88,166,255,0.1); color: var(--accent); }
+  .cost-tag { font-size: 0.65em; padding: 2px 7px; border-radius: 10px; background: rgba(63,185,80,0.1); color: var(--green); }
+  .feed-summary { color: var(--muted); font-size: 0.85em; margin-bottom: 6px; }
+  .feed-why { font-size: 0.78em; color: var(--green); font-style: italic; margin-bottom: 6px; }
+  .feed-url { font-size: 0.78em; color: var(--accent); text-decoration: none; }
 
-  .domain-tag { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; background: rgba(88,166,255,0.1); color: var(--accent); }
-  .cost-tag { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; background: rgba(63,185,80,0.1); color: var(--green); }
+  /* Grading */
+  .grade-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .grade-label { font-size: 0.75em; color: var(--muted); }
+  .grade-slider { width: 80px; accent-color: var(--accent); }
+  .grade-value { font-size: 0.8em; font-weight: bold; min-width: 20px; }
+  .grade-btn { background: var(--green); color: #fff; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75em; cursor: pointer; }
+  .grade-btn:hover { opacity: 0.9; }
+  .grade-result { font-size: 0.8em; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+  .graded { opacity: 0.7; }
 
-  .feed-summary { color: var(--muted); font-size: 0.9em; margin-bottom: 8px; }
-  .feed-why { font-size: 0.8em; color: var(--green); font-style: italic; }
-
-  .feed-url { font-size: 0.8em; color: var(--accent); text-decoration: none; }
-  .feed-url:hover { text-decoration: underline; }
-
-  /* Add item panel */
-  .add-panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
-  .add-panel h3 { margin-bottom: 12px; font-size: 1em; }
-  .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  /* Add panel */
+  .add-panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .add-panel h3 { margin-bottom: 10px; font-size: 0.95em; }
+  .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .add-form .full { grid-column: 1 / -1; }
-  .add-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; width: 100%; }
+  .add-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 7px 10px; border-radius: 6px; font-size: 0.85em; width: 100%; }
   .add-input::placeholder { color: #484f58; }
   select.add-input { appearance: auto; }
-  .add-btn { background: var(--green); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  .add-btn { background: var(--green); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85em; }
 
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty-state h3 { color: var(--text); margin-bottom: 8px; }
+  .stats-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; text-align: center; flex: 1; }
+  .stat-value { font-size: 1.4em; font-weight: bold; }
+  .stat-label { font-size: 0.7em; color: var(--muted); }
 
-  .footer { padding: 20px; color: var(--muted); font-size: 0.8em; border-top: 1px solid var(--border); margin-top: 24px; }
+  .filter-btns { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 16px; font-size: 0.75em; cursor: pointer; }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,0.1); }
+
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); }
+  .footer { padding: 16px 0; color: var(--muted); font-size: 0.8em; border-top: 1px solid var(--border); margin-top: 20px; }
   .footer a { color: var(--accent); text-decoration: none; }
-
-  .stats-row { display: flex; gap: 16px; margin-bottom: 16px; }
-  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: center; flex: 1; }
-  .stat-value { font-size: 1.5em; font-weight: bold; }
-  .stat-label { font-size: 0.75em; color: var(--muted); }
 </style>
 </head>
 <body>
-
 <div class="layout">
-  <!-- SIDEBAR: Your Profile -->
   <div class="sidebar">
     <h1>Front Page</h1>
     <div class="subtitle">Your hedonic content feed</div>
-
     <button class="import-btn" onclick="document.getElementById('fileInput').click()">Import AltPath Assessment</button>
     <input type="file" id="fileInput" class="file-input" accept=".json" onchange="importAssessment(event)">
-
-    <div id="profile-display">
-      <div class="empty-state" style="padding:20px; font-size:0.85em;">
-        No profile loaded.<br>Import your altpath assessment or add items to get started.
-      </div>
-    </div>
+    <div id="profile-display"><div class="empty-state" style="padding:16px;font-size:0.82em;">No profile loaded.</div></div>
   </div>
 
-  <!-- MAIN: Feed -->
   <div class="main">
-    <div class="stats-row" id="stats-row" style="display:none">
-      <div class="stat-card"><span class="stat-value" id="stat-items" style="color:var(--accent)">0</span><span class="stat-label">Items</span></div>
-      <div class="stat-card"><span class="stat-value" id="stat-relevant" style="color:var(--green)">0</span><span class="stat-label">Relevant</span></div>
-      <div class="stat-card"><span class="stat-value" id="stat-blockers" style="color:var(--red)">0</span><span class="stat-label">Unblockers</span></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('exchanges', this)">Fungibility Paths</div>
+      <div class="tab" onclick="switchTab('feed', this)">All Content</div>
+      <div class="tab" onclick="switchTab('graded', this)">My Grades</div>
+      <div class="tab" onclick="switchTab('add', this)">Add Content</div>
     </div>
 
-    <div class="feed-controls" id="feed-controls" style="display:none">
-      <button class="filter-btn active" onclick="filterFeed('all', this)">All</button>
-      <button class="filter-btn" onclick="filterFeed('tool', this)">Tools</button>
-      <button class="filter-btn" onclick="filterFeed('research', this)">Research</button>
-      <button class="filter-btn" onclick="filterFeed('policy', this)">Policy</button>
-      <button class="filter-btn" onclick="filterFeed('news', this)">News</button>
-      <button class="filter-btn" onclick="filterFeed('dataset', this)">Datasets</button>
-      <button class="filter-btn" onclick="filterFeed('resource', this)">Resources</button>
-    </div>
-
-    <!-- Add item panel -->
-    <div class="add-panel">
-      <h3>Add Content to Your Feed</h3>
-      <div class="add-form">
-        <input type="text" class="add-input full" id="add-title" placeholder="Title">
-        <input type="text" class="add-input" id="add-url" placeholder="URL (optional)">
-        <select class="add-input" id="add-type">
-          <option value="tool">Tool</option>
-          <option value="research">Research</option>
-          <option value="policy">Policy</option>
-          <option value="news">News</option>
-          <option value="dataset">Dataset</option>
-          <option value="resource">Resource</option>
-        </select>
-        <input type="text" class="add-input full" id="add-summary" placeholder="Summary / description">
-        <input type="text" class="add-input" id="add-domains" placeholder="Domains: 03,04,07">
-        <input type="text" class="add-input" id="add-costs" placeholder="Costs modified: A,T,F">
-        <select class="add-input" id="add-direction">
-          <option value="">Cost direction...</option>
-          <option value="decreased">Decreased (reduces cost)</option>
-          <option value="increased">Increased (adds cost)</option>
-        </select>
-        <button class="add-btn" onclick="addItem()">Add to Feed</button>
+    <!-- TAB: Fungibility Paths -->
+    <div class="tab-content active" id="tab-exchanges">
+      <div id="exchanges-container">
+        <div class="empty-state"><h3>Import your AltPath assessment</h3><p>Your fungibility paths will appear here — organized by exchange recommendations.</p></div>
       </div>
     </div>
 
-    <h2 id="feed-title">Your Feed</h2>
-    <div id="feed-container">
-      <div class="empty-state">
-        <h3>No items yet</h3>
-        <p>Add content above, or import your AltPath assessment to see personalized suggestions.</p>
+    <!-- TAB: All Content -->
+    <div class="tab-content" id="tab-feed">
+      <div class="stats-row" id="stats-row" style="display:none">
+        <div class="stat-card"><span class="stat-value" id="stat-items" style="color:var(--accent)">0</span><span class="stat-label">Items</span></div>
+        <div class="stat-card"><span class="stat-value" id="stat-relevant" style="color:var(--green)">0</span><span class="stat-label">Relevant</span></div>
+        <div class="stat-card"><span class="stat-value" id="stat-graded" style="color:var(--purple)">0</span><span class="stat-label">Graded</span></div>
+      </div>
+      <div class="filter-btns" id="filter-btns" style="display:none">
+        <button class="filter-btn active" onclick="filterFeed('all',this)">All</button>
+        <button class="filter-btn" onclick="filterFeed('tool',this)">Tools</button>
+        <button class="filter-btn" onclick="filterFeed('research',this)">Research</button>
+        <button class="filter-btn" onclick="filterFeed('policy',this)">Policy</button>
+        <button class="filter-btn" onclick="filterFeed('resource',this)">Resources</button>
+      </div>
+      <div id="feed-container"><div class="empty-state">Import assessment to see personalized content.</div></div>
+    </div>
+
+    <!-- TAB: My Grades -->
+    <div class="tab-content" id="tab-graded">
+      <div id="graded-container"><div class="empty-state">No items graded yet. Score items in the feed to see them here.</div></div>
+    </div>
+
+    <!-- TAB: Add Content -->
+    <div class="tab-content" id="tab-add">
+      <div class="add-panel">
+        <h3>Add Content to Your Feed</h3>
+        <div class="add-form">
+          <input type="text" class="add-input full" id="add-title" placeholder="Title">
+          <input type="text" class="add-input" id="add-url" placeholder="URL (optional)">
+          <select class="add-input" id="add-type"><option value="tool">Tool</option><option value="research">Research</option><option value="policy">Policy</option><option value="news">News</option><option value="dataset">Dataset</option><option value="resource">Resource</option></select>
+          <input type="text" class="add-input full" id="add-summary" placeholder="Summary / description">
+          <input type="text" class="add-input" id="add-domains" placeholder="Domains: 03,04,07">
+          <input type="text" class="add-input" id="add-costs" placeholder="Costs modified: A,T,F">
+          <select class="add-input" id="add-direction"><option value="">Direction...</option><option value="decreased">Decreased</option><option value="increased">Increased</option></select>
+          <input type="text" class="add-input" id="add-exchange" placeholder="Exchange path: F→T, K→A">
+          <button class="add-btn full" onclick="addItem()">Add to Feed</button>
+        </div>
       </div>
     </div>
 
-    <div class="footer">
-      Built by <a href="https://altpath.ai">AltPath AI</a> — Solve problems first. Beautify answers second.<br>
-      <a href="https://github.com/altpath-ai/highnoon">GitHub</a> · pip install frontpage · pip install altpath
-    </div>
+    <div class="footer">Built by <a href="https://altpath.ai">AltPath AI</a> — Solve problems first. Beautify answers second.<br><a href="https://github.com/altpath-ai/highnoon">GitHub</a> · pip install frontpage</div>
   </div>
 </div>
 
 <script>
-const DOMAINS = {
-  "01":"NOURISHMENT","02":"SHELTER","03":"HEALTH","04":"CARE","05":"MOBILITY",
-  "06":"GROWTH","07":"CONNECTION","08":"RECREATION","09":"EXPRESSION","10":"MEANING"
+const DOMAINS = {"01":"NOURISHMENT","02":"SHELTER","03":"HEALTH","04":"CARE","05":"MOBILITY","06":"GROWTH","07":"CONNECTION","08":"RECREATION","09":"EXPRESSION","10":"MEANING"};
+const COSTS = {T:"TIME",F:"FINANCIAL",A:"ATTENTION",P:"PHYSICAL",S:"SOCIAL",K:"KNOWLEDGE",X:"STATUS"};
+const EXCHANGE_RATES = {T:{T:1,F:.8,A:.3,P:.2,S:.5,K:.6,X:.4},F:{T:.7,F:1,A:.4,P:.5,S:.3,K:.5,X:.6},A:{T:.2,F:.3,A:1,P:.1,S:.4,K:.7,X:.3},P:{T:.3,F:.4,A:.2,P:1,S:.2,K:.2,X:.3},S:{T:.4,F:.3,A:.5,P:.2,S:1,K:.4,X:.7},K:{T:.5,F:.6,A:.6,P:.1,S:.3,K:1,X:.5},X:{T:.3,F:.5,A:.3,P:.1,S:.7,K:.4,X:1}};
+const EXCHANGE_DESC = {"F→T":"Buy time with money (hire help, outsource, automate)","T→F":"Trade time for money (labor → income)","K→A":"Knowledge reduces cognitive load (expertise makes things easier)","T→K":"Trade time for knowledge (study, learn)","K→T":"Knowledge saves time (expertise → efficiency)","F→A":"Buy attention relief (hire assistant, automation tools)","F→P":"Buy physical relief (gym, ergonomics, healthcare)","S→X":"Trade social capital for status (networking)","S→A":"Social support reduces cognitive burden","S→T":"Social network saves time (delegation, favors)","T→A":"Rest recovers attention (sleep, breaks)","A→K":"Focused attention builds knowledge (deep work)"};
+
+// Content suggestions organized by EXCHANGE PATH
+const EXCHANGE_CONTENT = {
+  "K→A": [
+    {title:"Mindfulness-Based Stress Reduction: Meta-Analysis",type:"research",summary:"MBSR reduces cognitive load and improves health outcomes across 47 studies",domains:["03"],costs:["A"],direction:"decreased",url:""},
+    {title:"Simple Habit Tracker (open source)",type:"tool",summary:"Zero-decision habit tracking — reduces cognitive load of health routines",domains:["03"],costs:["A"],direction:"decreased",url:"https://github.com/topics/habit-tracker"},
+    {title:"Checklist Manifesto — Atul Gawande",type:"resource",summary:"Use checklists to replace cognitive effort with systematic process",domains:[],costs:["A"],direction:"decreased",url:""},
+    {title:"Spaced Repetition Systems (Anki)",type:"tool",summary:"Use existing knowledge more efficiently — reduces re-learning attention cost",domains:["06"],costs:["A"],direction:"decreased",url:"https://apps.ankiweb.net"},
+  ],
+  "F→T": [
+    {title:"TaskRabbit — Outsource Errands",type:"tool",summary:"Trade money for time by outsourcing household tasks",domains:["08","04"],costs:["T"],direction:"decreased",url:"https://taskrabbit.com"},
+    {title:"Meal Delivery Services Comparison",type:"resource",summary:"Trade money for meal prep time — 5-10 hrs/week recovered",domains:["01","04"],costs:["T","A"],direction:"decreased",url:""},
+    {title:"Virtual Assistant Services Guide",type:"resource",summary:"Hire help for coordination tasks — reduces T.4 scheduling burden",domains:[],costs:["T","A"],direction:"decreased",url:""},
+    {title:"Home Cleaning Services ROI Calculator",type:"tool",summary:"Calculate: is it worth paying $X to free Y hours?",domains:["02"],costs:["T"],direction:"decreased",url:""},
+  ],
+  "S→A": [
+    {title:"Quality Time Research: Presence Over Duration",type:"research",summary:"15 min of fully present time > 2hrs distracted — social presence reduces anxiety",domains:["04"],costs:["A"],direction:"decreased",url:""},
+    {title:"Body Doubling for Productivity",type:"research",summary:"Working alongside others reduces attention cost of staying focused",domains:["07"],costs:["A"],direction:"decreased",url:""},
+    {title:"Accountability Partners — How to Set Up",type:"resource",summary:"Social support systems that reduce the cognitive load of self-motivation",domains:["07"],costs:["A"],direction:"decreased",url:""},
+  ],
+  "F→A": [
+    {title:"Headspace — Guided Meditation App",type:"tool",summary:"$70/yr → measurable attention recovery and stress reduction",domains:["03"],costs:["A"],direction:"decreased",url:"https://headspace.com"},
+    {title:"Noise-Cancelling Headphones for Focus",type:"tool",summary:"$300 one-time → reduces P.4 sensory burden + A.1 distraction",domains:[],costs:["A","P"],direction:"decreased",url:""},
+    {title:"Automation Tools That Save 10hrs/Week",type:"tool",summary:"$50-200/mo → reduce cognitive load through workflow automation",domains:[],costs:["A","T"],direction:"decreased",url:""},
+  ],
+  "T→A": [
+    {title:"Sleep Optimization Research: 7-9hrs Non-Negotiable",type:"research",summary:"Each hour of sleep deficit costs ~2hrs of effective attention next day",domains:["03"],costs:["A"],direction:"decreased",url:""},
+    {title:"Micro-Recovery: 5-Minute Break Protocol",type:"research",summary:"Short intentional breaks during work recover more attention than long passive rest",domains:["08"],costs:["A"],direction:"decreased",url:""},
+    {title:"Digital Minimalism — Cal Newport",type:"resource",summary:"Reclaim time from technology → attention fragmentation decreases",domains:[],costs:["A","T"],direction:"decreased",url:""},
+  ],
 };
-const COSTS = { T:"TIME",F:"FINANCIAL",A:"ATTENTION",P:"PHYSICAL",S:"SOCIAL",K:"KNOWLEDGE",X:"STATUS" };
 
 let profile = null;
 let feedItems = [];
+let gradedItems = {};
 let currentFilter = 'all';
+let exchanges = [];
 
-// === PROFILE ===
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
 function importAssessment(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
-    try {
-      profile = JSON.parse(e.target.result);
-      renderProfile();
-      rerankFeed();
-      addSuggestedItems();
-    } catch(err) { alert('Invalid JSON file'); }
+    try { profile = JSON.parse(e.target.result); renderProfile(); computeExchanges(); populateContent(); renderAll(); } catch(err) { console.error(err); }
   };
   reader.readAsText(file);
 }
@@ -205,173 +242,141 @@ function importAssessment(event) {
 function renderProfile() {
   if (!profile) return;
   const el = document.getElementById('profile-display');
-
-  // Ends
   let html = '<hr class="divider"><div class="profile-section"><h3>Your ENDS</h3>';
   profile.ends.forEach(e => {
     const color = e.score >= 8 ? 'var(--green)' : e.score >= 5 ? 'var(--accent)' : e.score >= 3 ? 'var(--yellow)' : 'var(--red)';
-    const badge = e.score < 5 ? ' <span class="gap-badge">GAP</span>' : e.score >= 8 ? ' <span class="strength-badge">OK</span>' : '';
-    html += `<div class="domain-mini">
-      <span class="code">${e.code}</span>
-      <span class="name">${e.name}</span>
-      <div class="bar-mini" style="width:${e.score*12}px;background:${color}"></div>
-      <span class="score-mini">${e.score}</span>${badge}
-    </div>`;
+    const badge = e.score < 5 ? ' <span class="gap-badge">GAP</span>' : e.score >= 8 ? ' <span class="ok-badge">OK</span>' : '';
+    html += `<div class="domain-mini"><span class="code">${e.code}</span><span class="name">${e.name}</span><div class="bar-mini" style="width:${e.score*10}px;background:${color}"></div><span class="score-mini">${e.score}</span>${badge}</div>`;
   });
-  html += '</div>';
-
-  // Means
-  html += '<div class="profile-section"><h3>Your MEANS</h3>';
+  html += '</div><div class="profile-section"><h3>Your MEANS</h3>';
   profile.means.forEach(m => {
     const color = m.burden >= 8 ? 'var(--red)' : m.burden >= 6 ? 'var(--orange)' : m.burden >= 4 ? 'var(--yellow)' : 'var(--green)';
-    const blocker = m.blocks.length ? ` <span class="blocker-tag">blocks ${m.blocks.map(b=>DOMAINS[b]||b).join(',')}</span>` : '';
-    html += `<div class="cost-mini">
-      <span class="code">${m.code}</span>
-      <span class="name">${m.name}</span>
-      <div class="bar-mini" style="width:${m.burden*12}px;background:${color}"></div>
-      <span class="score-mini">${m.burden}</span>${blocker}
-    </div>`;
+    const blocker = m.blocks && m.blocks.length ? ` <span class="blocker-tag">blocks ${m.blocks.map(b=>DOMAINS[b]||b).join(',')}</span>` : '';
+    html += `<div class="cost-mini"><span class="code">${m.code}</span><span class="name">${m.name}</span><div class="bar-mini" style="width:${m.burden*10}px;background:${color}"></div><span class="score-mini">${m.burden}</span>${blocker}</div>`;
   });
-  html += '</div>';
-
-  // Indices
-  html += `<hr class="divider"><div class="profile-section"><h3>Indices</h3>
-    <div style="font-size:0.9em">Hedonic: <strong>${profile.hedonicIndex}</strong> · Cost: <strong>${profile.costIndex}</strong> · Net: <strong style="color:${profile.netHedonic >= 0 ? 'var(--green)' : 'var(--red)'}">${profile.netHedonic}</strong></div>
-  </div>`;
-
+  html += `</div><hr class="divider"><div class="profile-section"><h3>Indices</h3><div style="font-size:0.85em">Hedonic: <strong>${profile.hedonicIndex}</strong> · Cost: <strong>${profile.costIndex}</strong> · Net: <strong style="color:${profile.netHedonic>=0?'var(--green)':'var(--red)'}">${profile.netHedonic}</strong></div></div>`;
   el.innerHTML = html;
 }
 
-// === FEED SCORING ===
-function getGaps() {
-  if (!profile) return [];
-  return profile.ends.filter(e => e.score < 5).map(e => e.code);
-}
-function getHeavyCosts() {
-  if (!profile) return [];
-  return profile.means.filter(m => m.burden >= 6).map(m => m.code);
-}
-function getBlockingCosts() {
-  if (!profile) return {};
-  const gaps = new Set(getGaps());
-  const blocking = {};
-  profile.means.forEach(m => {
-    if (m.burden >= 6) {
-      const relevant = m.blocks.filter(d => gaps.has(d));
-      if (relevant.length) blocking[m.code] = relevant;
-    }
+function computeExchanges() {
+  if (!profile) return;
+  const gaps = new Set(profile.ends.filter(e => e.score < 5).map(e => e.code));
+  const surpluses = profile.means.filter(m => m.burden <= 4);
+  const deficits = profile.means.filter(m => m.burden >= 6);
+  exchanges = [];
+  surpluses.forEach(give => {
+    deficits.forEach(receive => {
+      if (give.code === receive.code) return;
+      const rate = EXCHANGE_RATES[give.code]?.[receive.code] || 0;
+      if (rate < 0.3) return;
+      const unlocks = (receive.blocks || []).filter(d => gaps.has(d));
+      const severity = receive.burden / 10;
+      const headroom = (10 - give.burden) / 10;
+      const priority = rate * severity * Math.max(unlocks.length, 1) * headroom;
+      const key = `${give.code}→${receive.code}`;
+      exchanges.push({ key, give: give.code, giveName: give.name || COSTS[give.code], receive: receive.code, receiveName: receive.name || COSTS[receive.code], rate, priority, unlocks, desc: EXCHANGE_DESC[key] || `Convert ${COSTS[give.code]} to reduce ${COSTS[receive.code]}` });
+    });
   });
-  return blocking;
+  exchanges.sort((a, b) => b.priority - a.priority);
+}
+
+function populateContent() {
+  feedItems = [];
+  // Add content organized by exchange path
+  exchanges.forEach(ex => {
+    const content = EXCHANGE_CONTENT[ex.key] || [];
+    content.forEach(c => {
+      if (!feedItems.some(f => f.title === c.title)) {
+        feedItems.push({...c, exchange: ex.key, score: 0, why: '', url: c.url || ''});
+      }
+    });
+  });
+  // Score all items
+  feedItems.forEach(item => { item.score = scoreItem(item); item.why = explainItem(item); });
+  feedItems.sort((a, b) => b.score - a.score);
 }
 
 function scoreItem(item) {
+  if (!profile) return 0;
   let score = 0;
-  const gaps = new Set(getGaps());
-  const heavy = new Set(getHeavyCosts());
-  const blocking = getBlockingCosts();
-
-  // Tier 1: Unblocks deficient domain
-  item.domains.forEach(d => {
-    if (gaps.has(d)) {
-      item.costs.forEach(c => {
-        if (blocking[c] && blocking[c].includes(d) && item.direction === 'decreased') {
-          score += 10;
-        }
-      });
-    }
-  });
-  // Tier 2: Reduces heavy cost
-  item.costs.forEach(c => {
-    if (heavy.has(c) && item.direction === 'decreased') score += 5;
-  });
-  // Tier 3: Serves gap domain
-  item.domains.forEach(d => { if (gaps.has(d)) score += 3; });
-  // Type bonus
+  const gaps = new Set(profile.ends.filter(e => e.score < 5).map(e => e.code));
+  const heavy = new Set(profile.means.filter(m => m.burden >= 6).map(m => m.code));
+  const blocking = {};
+  profile.means.forEach(m => { if (m.burden >= 6 && m.blocks) { const r = m.blocks.filter(d => gaps.has(d)); if (r.length) blocking[m.code] = r; }});
+  (item.domains||[]).forEach(d => { if (gaps.has(d)) { (item.costs||[]).forEach(c => { if (blocking[c] && blocking[c].includes(d) && item.direction === 'decreased') score += 10; }); }});
+  (item.costs||[]).forEach(c => { if (heavy.has(c) && item.direction === 'decreased') score += 5; });
+  (item.domains||[]).forEach(d => { if (gaps.has(d)) score += 3; });
   const bonus = {tool:2,resource:1.5,policy:1.5,research:1,dataset:0.5,news:0.5};
   score += bonus[item.type] || 0;
-
   return score;
 }
 
 function explainItem(item) {
+  if (!profile) return '';
   const reasons = [];
-  const gaps = new Set(getGaps());
-  const heavy = new Set(getHeavyCosts());
-  const blocking = getBlockingCosts();
-
-  item.domains.forEach(d => {
-    if (gaps.has(d)) {
-      const dn = DOMAINS[d] || d;
-      item.costs.forEach(c => {
-        if (blocking[c] && blocking[c].includes(d)) {
-          reasons.push(`Unblocks ${dn} by reducing ${COSTS[c]||c}`);
-        }
-      });
-      if (!reasons.some(r => r.includes(dn))) reasons.push(`Serves ${dn} (gap domain)`);
-    }
-  });
-  item.costs.forEach(c => {
-    if (heavy.has(c) && item.direction === 'decreased') {
-      const cn = COSTS[c] || c;
-      if (!reasons.some(r => r.includes(cn))) reasons.push(`Reduces ${cn} burden`);
-    }
-  });
-  return reasons.length ? reasons.join('; ') : 'General relevance';
+  const gaps = new Set(profile.ends.filter(e => e.score < 5).map(e => e.code));
+  const heavy = new Set(profile.means.filter(m => m.burden >= 6).map(m => m.code));
+  const blocking = {};
+  profile.means.forEach(m => { if (m.burden >= 6 && m.blocks) { const r = m.blocks.filter(d => gaps.has(d)); if (r.length) blocking[m.code] = r; }});
+  (item.domains||[]).forEach(d => { if (gaps.has(d)) { const dn = DOMAINS[d]||d; (item.costs||[]).forEach(c => { if (blocking[c] && blocking[c].includes(d)) reasons.push(`Unblocks ${dn} by reducing ${COSTS[c]||c}`); }); if (!reasons.some(r=>r.includes(dn))) reasons.push(`Serves ${dn} (gap)`); }});
+  (item.costs||[]).forEach(c => { if (heavy.has(c) && item.direction==='decreased') { const cn=COSTS[c]||c; if (!reasons.some(r=>r.includes(cn))) reasons.push(`Reduces ${cn} burden`); }});
+  return reasons.join('; ') || 'General relevance';
 }
 
-function getTier(score) {
-  if (score >= 15) return 'tier1';
-  if (score >= 8) return 'tier2';
-  if (score >= 3) return 'tier3';
-  return 'tier4';
+function renderAll() { renderExchanges(); renderFeed(); renderGraded(); }
+
+function renderExchanges() {
+  const container = document.getElementById('exchanges-container');
+  if (!exchanges.length) { container.innerHTML = '<div class="empty-state">Import your assessment to see fungibility paths.</div>'; return; }
+  let html = '<div class="stats-row"><div class="stat-card"><span class="stat-value" style="color:var(--green)">' + exchanges.length + '</span><span class="stat-label">Exchange Paths</span></div><div class="stat-card"><span class="stat-value" style="color:var(--accent)">' + feedItems.length + '</span><span class="stat-label">Content Found</span></div><div class="stat-card"><span class="stat-value" style="color:var(--purple)">' + Object.keys(gradedItems).length + '</span><span class="stat-label">Graded</span></div></div>';
+  exchanges.slice(0, 7).forEach((ex, i) => {
+    const items = feedItems.filter(f => f.exchange === ex.key);
+    const unlockNames = ex.unlocks.map(d => DOMAINS[d] || d).join(', ');
+    html += `<div class="exchange-card ${i < 3 ? 'primary' : ''}">
+      <div class="exchange-header">
+        <span class="exchange-title">${ex.giveName} → ${ex.receiveName}</span>
+        <span class="exchange-badge">${Math.round(ex.rate*100)}% efficient · Priority ${ex.priority.toFixed(2)}</span>
+      </div>
+      <div class="exchange-desc">${ex.desc}</div>
+      ${unlockNames ? `<div class="exchange-unlocks">Unlocks: ${unlockNames}</div>` : ''}
+      <div class="exchange-items">${items.length ? items.map(item => renderFeedItem(item)).join('') : '<div style="color:var(--muted);font-size:0.85em;padding:8px">No content found for this exchange path yet. Add some in the Add Content tab.</div>'}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
 }
 
-// === FEED RENDERING ===
-function rerankFeed() {
-  feedItems.forEach(item => {
-    item.score = profile ? scoreItem(item) : 0;
-    item.why = profile ? explainItem(item) : '';
-  });
-  feedItems.sort((a, b) => b.score - a.score);
-  renderFeed();
+function renderFeedItem(item) {
+  const tier = item.score >= 15 ? 'tier1' : item.score >= 8 ? 'tier2' : item.score >= 3 ? 'tier3' : '';
+  const domainTags = (item.domains||[]).map(d => `<span class="domain-tag">${DOMAINS[d]||d}</span>`).join(' ');
+  const costTags = (item.costs||[]).map(c => `<span class="cost-tag">${item.direction==='decreased'?'↓':'↑'} ${COSTS[c]||c}</span>`).join(' ');
+  const isGraded = gradedItems[item.title];
+  const gradeDisplay = isGraded ? `<span class="grade-result" style="background:var(--green);color:#fff">${isGraded.grade}</span>` : '';
+  const id = Array.from(item.title).reduce((h,c)=>(h*31+c.charCodeAt(0))|0,0).toString(36).replace('-','x');
+
+  return `<div class="feed-item ${tier} ${isGraded ? 'graded' : ''}" id="item-${id}">
+    <div class="feed-header"><span class="feed-title">${item.title}</span><span class="feed-score">${item.score.toFixed(1)} ${gradeDisplay}</span></div>
+    <div class="feed-meta"><span class="type-badge type-${item.type}">${item.type}</span>${domainTags} ${costTags}</div>
+    ${item.summary ? `<div class="feed-summary">${item.summary}</div>` : ''}
+    ${item.why ? `<div class="feed-why">${item.why}</div>` : ''}
+    ${item.url ? `<a href="${item.url}" class="feed-url" target="_blank">${item.url}</a>` : ''}
+    ${!isGraded ? `<div class="grade-row">
+      <span class="grade-label">Purpose:</span><input type="range" class="grade-slider" min="1" max="10" value="5" id="gp-${id}" oninput="document.getElementById('gpv-${id}').textContent=this.value"><span class="grade-value" id="gpv-${id}">5</span>
+      <span class="grade-label">Cost Eff:</span><input type="range" class="grade-slider" min="1" max="10" value="5" id="gc-${id}" oninput="document.getElementById('gcv-${id}').textContent=this.value"><span class="grade-value" id="gcv-${id}">5</span>
+      <button class="grade-btn" onclick="gradeItem('${item.title.replace(/'/g,"\\'")}','${id}')">Grade</button>
+    </div>` : ''}
+  </div>`;
 }
 
 function renderFeed() {
   const container = document.getElementById('feed-container');
   const filtered = currentFilter === 'all' ? feedItems : feedItems.filter(i => i.type === currentFilter);
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-state"><h3>No items</h3><p>Add content above or change your filter.</p></div>';
-    document.getElementById('stats-row').style.display = 'none';
-    return;
-  }
-
+  if (!filtered.length) { container.innerHTML = '<div class="empty-state">No items. Import assessment or add content.</div>'; return; }
   document.getElementById('stats-row').style.display = 'flex';
-  document.getElementById('feed-controls').style.display = 'flex';
+  document.getElementById('filter-btns').style.display = 'flex';
   document.getElementById('stat-items').textContent = feedItems.length;
   document.getElementById('stat-relevant').textContent = feedItems.filter(i => i.score >= 3).length;
-  document.getElementById('stat-blockers').textContent = feedItems.filter(i => i.score >= 15).length;
-
-  container.innerHTML = filtered.map(item => {
-    const tier = getTier(item.score);
-    const domainTags = item.domains.map(d => `<span class="domain-tag">${DOMAINS[d]||d}</span>`).join(' ');
-    const costTags = item.costs.map(c => `<span class="cost-tag">${item.direction === 'decreased' ? '↓' : '↑'} ${COSTS[c]||c}</span>`).join(' ');
-    const urlLink = item.url ? `<a href="${item.url}" class="feed-url" target="_blank">${item.url}</a>` : '';
-
-    return `<div class="feed-item ${tier}">
-      <div class="feed-header">
-        <span class="feed-title">${item.title}</span>
-        <span class="feed-score">${item.score.toFixed(1)}</span>
-      </div>
-      <div class="feed-meta">
-        <span class="type-badge type-${item.type}">${item.type}</span>
-        ${domainTags} ${costTags}
-      </div>
-      ${item.summary ? `<div class="feed-summary">${item.summary}</div>` : ''}
-      ${item.why ? `<div class="feed-why">${item.why}</div>` : ''}
-      ${urlLink}
-    </div>`;
-  }).join('');
+  document.getElementById('stat-graded').textContent = Object.keys(gradedItems).length;
+  container.innerHTML = filtered.map(item => renderFeedItem(item)).join('');
 }
 
 function filterFeed(type, btn) {
@@ -381,83 +386,61 @@ function filterFeed(type, btn) {
   renderFeed();
 }
 
-// === ADD ITEMS ===
+function gradeItem(title, id) {
+  const purpose = parseInt(document.getElementById('gp-' + id)?.value || 5);
+  const costEff = parseInt(document.getElementById('gc-' + id)?.value || 5);
+  const item = feedItems.find(f => f.title === title);
+  const relevance = item ? item.score / 2 : 0; // Normalize feed score to 0-10ish
+  const avg = (purpose + costEff + Math.min(relevance, 10)) / 3;
+  let grade;
+  if (avg >= 9) grade = 'A+'; else if (avg >= 8) grade = 'A'; else if (avg >= 7) grade = 'B+';
+  else if (avg >= 6) grade = 'B'; else if (avg >= 5) grade = 'C+'; else if (avg >= 4) grade = 'C';
+  else if (avg >= 3) grade = 'D'; else grade = 'F';
+
+  gradedItems[title] = { grade, purpose, costEff, relevance: Math.min(relevance, 10), title, type: item?.type || 'content', domains: item?.domains || [], costs: item?.costs || [], gradedAt: new Date().toISOString() };
+  renderAll();
+}
+
+function renderGraded() {
+  const container = document.getElementById('graded-container');
+  const items = Object.values(gradedItems).sort((a,b) => b.purpose - a.purpose);
+  if (!items.length) { container.innerHTML = '<div class="empty-state">No items graded yet.</div>'; return; }
+  let html = '<div style="margin-bottom:16px"><button class="add-btn" onclick="downloadGrades()" style="background:var(--accent)">Download Grades (JSON)</button></div>';
+  items.forEach(g => {
+    const color = g.grade.startsWith('A') ? 'var(--green)' : g.grade.startsWith('B') ? 'var(--accent)' : g.grade.startsWith('C') ? 'var(--yellow)' : 'var(--red)';
+    html += `<div class="feed-item" style="border-left:3px solid ${color}">
+      <div class="feed-header"><span class="feed-title">${g.title}</span><span style="font-size:1.2em;font-weight:bold;color:${color}">${g.grade}</span></div>
+      <div style="font-size:0.8em;color:var(--muted)">Purpose: ${g.purpose}/10 · Cost Efficiency: ${g.costEff}/10 · Relevance: ${g.relevance.toFixed(1)}/10</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
 function addItem() {
   const title = document.getElementById('add-title').value.trim();
   if (!title) return;
-
   const item = {
-    title,
-    url: document.getElementById('add-url').value.trim(),
+    title, url: document.getElementById('add-url').value.trim(),
     type: document.getElementById('add-type').value,
     summary: document.getElementById('add-summary').value.trim(),
     domains: document.getElementById('add-domains').value.split(',').map(s=>s.trim()).filter(Boolean),
     costs: document.getElementById('add-costs').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean),
     direction: document.getElementById('add-direction').value,
-    score: 0,
-    why: '',
+    exchange: document.getElementById('add-exchange').value.trim() || '',
+    score: 0, why: '',
   };
-
+  item.score = scoreItem(item); item.why = explainItem(item);
   feedItems.push(item);
-
-  // Clear form
-  ['add-title','add-url','add-summary','add-domains','add-costs'].forEach(id => document.getElementById(id).value = '');
-
-  rerankFeed();
+  feedItems.sort((a, b) => b.score - a.score);
+  ['add-title','add-url','add-summary','add-domains','add-costs','add-exchange'].forEach(id => document.getElementById(id).value = '');
+  renderAll();
+  switchTab('feed', document.querySelectorAll('.tab')[1]);
 }
 
-// === SUGGESTED ITEMS (auto-added when profile loaded) ===
-function addSuggestedItems() {
-  if (!profile) return;
-  const gaps = getGaps();
-  const blocking = getBlockingCosts();
-
-  const suggestions = {
-    "03": [
-      {title:"Mindfulness-Based Stress Reduction: Meta-Analysis",type:"research",summary:"MBSR reduces cognitive load and improves health outcomes across 47 studies",domains:["03"],costs:["A"],direction:"decreased"},
-      {title:"Headspace — Guided Meditation App",type:"tool",summary:"10-minute daily sessions that reduce attention burden and improve sleep quality",domains:["03"],costs:["A"],direction:"decreased",url:"https://headspace.com"},
-      {title:"CDC Physical Activity Guidelines 2026",type:"research",summary:"Updated exercise recommendations for adults — minimum effective doses",domains:["03"],costs:[],direction:""},
-      {title:"Simple Habit Tracker (open source)",type:"tool",summary:"Zero-decision habit tracking — reduces cognitive load of health routines",domains:["03"],costs:["A"],direction:"decreased",url:"https://github.com/topics/habit-tracker"},
-    ],
-    "04": [
-      {title:"Quality Time Research: Presence Over Duration",type:"research",summary:"Studies show 15 min of fully present time > 2hrs of distracted time for bonding",domains:["04"],costs:["A"],direction:"decreased"},
-      {title:"Family Meal Planning — 15 Min/Week App",type:"tool",summary:"Automates meal decisions, frees attention for family presence",domains:["04","01"],costs:["A","T"],direction:"decreased"},
-      {title:"Paid Family Leave Policy Tracker",type:"policy",summary:"Track state-by-state family leave legislation and its hedonic impact",domains:["04"],costs:["T"],direction:"decreased"},
-    ],
-    "07": [
-      {title:"Social Prescribing: The Evidence Base",type:"research",summary:"GPs prescribing social activities shows measurable health + connection outcomes",domains:["07","03"],costs:[],direction:""},
-      {title:"Meetup Automation — Find Groups by Interest",type:"tool",summary:"Reduces coordination cost of finding social groups",domains:["07"],costs:["A","T"],direction:"decreased"},
-    ],
-    "08": [
-      {title:"Micro-Recovery Research: 5-Minute Breaks",type:"research",summary:"Short intentional breaks during work recover more attention than long passive rest",domains:["08"],costs:["A"],direction:"decreased"},
-    ],
-  };
-
-  gaps.forEach(code => {
-    const items = suggestions[code] || [];
-    items.forEach(s => {
-      // Don't add duplicates
-      if (!feedItems.some(f => f.title === s.title)) {
-        feedItems.push({...s, score: 0, why: '', url: s.url || ''});
-      }
-    });
-  });
-
-  // Also add attention-reducer suggestions if A is heavy
-  if (getHeavyCosts().includes('A')) {
-    const attentionItems = [
-      {title:"Automation Tools That Save 10hrs/Week",type:"tool",summary:"Reduce cognitive load through workflow automation",domains:[],costs:["A"],direction:"decreased"},
-      {title:"The 5-Minute Journal: Eliminate Decision Fatigue",type:"tool",summary:"Structured journaling replaces open-ended reflection with guided prompts",domains:["10"],costs:["A"],direction:"decreased"},
-      {title:"Digital Minimalism — Cal Newport",type:"resource",summary:"Framework for reducing attention fragmentation from technology",domains:[],costs:["A"],direction:"decreased"},
-    ];
-    attentionItems.forEach(s => {
-      if (!feedItems.some(f => f.title === s.title)) {
-        feedItems.push({...s, score: 0, why: '', url: s.url || ''});
-      }
-    });
-  }
-
-  rerankFeed();
+function downloadGrades() {
+  const blob = new Blob([JSON.stringify({grades: Object.values(gradedItems), exported: new Date().toISOString()}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `frontpage-grades-${new Date().toISOString().slice(0,10)}.json`; a.click();
 }
 </script>
 </body>
