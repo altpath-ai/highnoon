@@ -61,6 +61,8 @@ def main():
     p_json = sub.add_parser("json", help="Output project signals as JSON")
     p_json.add_argument("path", nargs="?", default=".", help="Project directory")
 
+    sub.add_parser("save", help="Show saved software assessments")
+
     args = parser.parse_args()
     if args.command is None:
         parser.print_help()
@@ -70,8 +72,24 @@ def main():
         "scan": cmd_scan,
         "assess": cmd_assess,
         "json": cmd_json,
+        "save": cmd_save,
     }
     commands[args.command](args)
+
+
+def cmd_save(args):
+    from hedonics.storage import list_software_assessments, list_grades
+    software = list_software_assessments()
+    grades = list_grades("software")
+    print(f"\n  High Noon — Saved Software Assessments")
+    print(f"  Assessed: {len(software)} projects")
+    for s in software:
+        print(f"    - {s['project']} ({s['assessed_at'][:10]})")
+    print(f"  Graded: {len(grades)} projects")
+    for g in grades[:5]:
+        print(f"    {g['overall_grade']}  {g['item_name']}")
+    print(f"\n  Storage: ~/.hedonics/software/")
+    print()
 
 
 if __name__ == "__main__":

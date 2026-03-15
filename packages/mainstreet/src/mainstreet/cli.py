@@ -102,6 +102,8 @@ def main():
     sub.add_parser("series", help="List available BLS series")
     sub.add_parser("domains", help="Show hedonic domains with federal data mappings")
 
+    sub.add_parser("save", help="Show saved policy assessments and grades")
+
     args = parser.parse_args()
     if args.command is None:
         parser.print_help()
@@ -112,8 +114,24 @@ def main():
         "bls": cmd_bls,
         "series": cmd_series,
         "domains": cmd_domains,
+        "save": cmd_save,
     }
     commands[args.command](args)
+
+
+def cmd_save(args):
+    from hedonics.storage import list_policy_assessments, list_grades
+    policies = list_policy_assessments()
+    grades = list_grades("policy")
+    print(f"\n  Main Street — Saved Policy Assessments")
+    print(f"  Assessed: {len(policies)} policies")
+    for p in policies:
+        print(f"    - {p['policy']} ({p['assessed_at'][:10]})")
+    print(f"  Graded: {len(grades)} policies")
+    for g in grades[:5]:
+        print(f"    {g['overall_grade']}  {g['item_name']}")
+    print(f"\n  Storage: ~/.hedonics/policy/")
+    print()
 
 
 if __name__ == "__main__":

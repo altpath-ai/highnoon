@@ -203,6 +203,40 @@ def cmd_assess(args):
     print()
 
 
+def cmd_ui(args):
+    """Launch the interactive web dashboard."""
+    from hedonics.serve import serve_dashboard, get_package_dashboard
+    dashboard = get_package_dashboard("altpath")
+    if dashboard:
+        serve_dashboard(dashboard)
+    else:
+        print("  Dashboard not found. Try: python -m http.server in the altpath package directory.")
+
+
+def cmd_save(args):
+    """Save/show the current saved assessment."""
+    saved = load_profile()
+    if not saved:
+        print("\n  No assessment saved yet. Run 'altpath assess' first.")
+        return
+    print(f"\n  Current saved assessment:")
+    print(f"  Saved at: {saved.get('saved_at', 'unknown')}")
+    hi = sum(e["score"] for e in saved.get("ends", [])) / max(len(saved.get("ends", [])), 1)
+    print(f"  Hedonic Index: {hi:.1f}/10")
+    gaps = [e for e in saved.get("ends", []) if e["score"] < 5]
+    if gaps:
+        print(f"  Gaps: {', '.join(e['name'] + ' (' + str(e['score']) + ')' for e in gaps)}")
+    heavy = [m for m in saved.get("means", []) if m["burden"] >= 6]
+    if heavy:
+        print(f"  Heavy costs: {', '.join(m['name'] + ' (' + str(m['burden']) + ')' for m in heavy)}")
+    print(f"\n  Files:")
+    print(f"    ~/.altpath/assessment.json")
+    print(f"    ~/.hedonics/profile/assessment.json")
+    if args.json:
+        print(f"\n{json.dumps(saved, indent=2)}")
+    print()
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="altpath",
@@ -213,6 +247,9 @@ def main():
     sub.add_parser("assess", help="Full interactive assessment (ends + means + optimization)")
     sub.add_parser("domains", help="List the 10 hedonic domains")
     sub.add_parser("costs", help="List the 9 cost categories")
+    sub.add_parser("ui", help="Launch the interactive web dashboard")
+    p_save = sub.add_parser("save", help="Show the current saved assessment")
+    p_save.add_argument("--json", action="store_true", help="Output full JSON")
 
     args = parser.parse_args()
 
@@ -224,6 +261,8 @@ def main():
         "assess": cmd_assess,
         "domains": cmd_domains,
         "costs": cmd_costs,
+        "ui": cmd_ui,
+        "save": cmd_save,
     }
     commands[args.command](args)
 

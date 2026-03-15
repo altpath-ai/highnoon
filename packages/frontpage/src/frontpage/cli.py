@@ -66,6 +66,32 @@ def cmd_types(args):
     print()
 
 
+def cmd_ui(args):
+    """Launch the interactive web dashboard."""
+    from hedonics.serve import serve_dashboard, get_package_dashboard
+    dashboard = get_package_dashboard("frontpage")
+    if dashboard:
+        serve_dashboard(dashboard)
+    else:
+        print("  Dashboard not found.")
+
+
+def cmd_save(args):
+    """Show saved feed items from shared storage."""
+    from hedonics.storage import load_feed_items, list_grades
+    items = load_feed_items()
+    grades = list_grades("content")
+    print(f"\n  Front Page — Saved Data")
+    print(f"  Feed items saved: {len(items)}")
+    print(f"  Content graded:   {len(grades)}")
+    if grades:
+        print(f"\n  Recent grades:")
+        for g in grades[:5]:
+            print(f"    {g['overall_grade']}  {g['item_name']}")
+    print(f"\n  Storage: ~/.hedonics/feed/ and ~/.hedonics/grades/content/")
+    print()
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="frontpage",
@@ -78,6 +104,8 @@ def main():
 
     sub.add_parser("sources", help="List available content sources")
     sub.add_parser("types", help="List content types")
+    sub.add_parser("ui", help="Launch the interactive web dashboard")
+    sub.add_parser("save", help="Show saved feed items and grades")
 
     args = parser.parse_args()
     if args.command is None:
@@ -88,6 +116,8 @@ def main():
         "suggest": cmd_suggest,
         "sources": cmd_sources,
         "types": cmd_types,
+        "ui": cmd_ui,
+        "save": cmd_save,
     }
     commands[args.command](args)
 

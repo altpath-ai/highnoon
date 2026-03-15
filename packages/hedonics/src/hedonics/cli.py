@@ -179,6 +179,41 @@ def cmd_json(args):
     print(json.dumps(data, indent=2))
 
 
+def cmd_save(args):
+    """Show all saved data across the hedonics ecosystem."""
+    from hedonics.storage import load_profile, list_software_assessments, list_policy_assessments, list_grades, grade_summary
+
+    profile = load_profile()
+    software = list_software_assessments()
+    policies = list_policy_assessments()
+    summary = grade_summary()
+
+    print("\n  Hedonics Ecosystem — Saved Data (~/.hedonics/)")
+    print("  ================================================\n")
+
+    if profile:
+        hi = sum(e["score"] for e in profile.get("ends", [])) / max(len(profile.get("ends", [])), 1)
+        print(f"  Profile:     saved ({profile.get('saved_at', '?')[:19]}), Hedonic Index: {hi:.1f}/10")
+    else:
+        print("  Profile:     not yet assessed (run: altpath assess)")
+
+    print(f"  Software:    {len(software)} assessed")
+    for s in software[:3]:
+        print(f"               - {s['project']}")
+
+    print(f"  Policies:    {len(policies)} assessed")
+    for p in policies[:3]:
+        print(f"               - {p['policy']}")
+
+    print(f"  Grades:      {summary['total_graded']} total")
+    for t, info in summary.get("by_type", {}).items():
+        grades_str = ", ".join(f"{g}:{c}" for g, c in info["grades"].items())
+        print(f"               {t}: {info['count']} ({grades_str})")
+
+    print(f"\n  Storage: ~/.hedonics/")
+    print()
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="hedonics",
@@ -203,6 +238,7 @@ def main():
     p_blockers.add_argument("domain_code", help="Domain code (01-10)")
 
     sub.add_parser("json", help="Output full taxonomy as JSON")
+    sub.add_parser("save", help="Show all saved data across the ecosystem")
 
     args = parser.parse_args()
     if args.command is None:
@@ -217,6 +253,7 @@ def main():
         "cost": cmd_cost,
         "blockers": cmd_blockers,
         "json": cmd_json,
+        "save": cmd_save,
     }
     commands[args.command](args)
 
