@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Front Page — Your Hedonic Content Feed</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3;
+    --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --yellow: #d29922;
+    --red: #f85149; --orange: #d18616; --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; flex-shrink: 0; overflow-y: auto; }
+  .sidebar h1 { font-size: 1.4em; margin-bottom: 4px; }
+  .sidebar .subtitle { color: var(--muted); font-size: 0.85em; margin-bottom: 20px; }
+
+  .profile-section { margin-bottom: 20px; }
+  .profile-section h3 { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .domain-mini { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 0.85em; }
+  .domain-mini .code { color: var(--accent); font-weight: bold; min-width: 22px; }
+  .domain-mini .name { min-width: 90px; }
+  .domain-mini .bar-mini { height: 8px; border-radius: 4px; }
+  .domain-mini .score-mini { font-size: 0.8em; color: var(--muted); min-width: 20px; text-align: right; }
+  .gap-badge { background: var(--red); color: #fff; font-size: 0.65em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+  .strength-badge { background: var(--green); color: #fff; font-size: 0.65em; padding: 1px 5px; border-radius: 8px; font-weight: 600; }
+
+  .cost-mini { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 0.85em; }
+  .blocker-tag { font-size: 0.7em; color: var(--red); }
+
+  .import-btn { background: var(--accent); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85em; cursor: pointer; width: 100%; margin-bottom: 8px; }
+  .import-btn:hover { opacity: 0.9; }
+  .file-input { display: none; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* Main content */
+  .main { flex: 1; padding: 24px 32px; overflow-y: auto; }
+  .main h2 { font-size: 1.3em; margin-bottom: 16px; }
+
+  .feed-controls { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 20px; font-size: 0.8em; cursor: pointer; }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,0.1); }
+
+  .feed-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; transition: border-color 0.2s; }
+  .feed-item:hover { border-color: var(--accent); }
+  .feed-item.tier1 { border-left: 3px solid var(--green); }
+  .feed-item.tier2 { border-left: 3px solid var(--accent); }
+  .feed-item.tier3 { border-left: 3px solid var(--yellow); }
+  .feed-item.tier4 { border-left: 3px solid var(--border); }
+
+  .feed-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .feed-title { font-weight: 600; font-size: 1.05em; flex: 1; }
+  .feed-score { background: var(--bg); padding: 2px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; color: var(--accent); white-space: nowrap; }
+
+  .feed-meta { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .type-badge { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; font-weight: 600; text-transform: uppercase; }
+  .type-news { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .type-research { background: rgba(188,140,255,0.15); color: var(--purple); }
+  .type-tool { background: rgba(63,185,80,0.15); color: var(--green); }
+  .type-policy { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .type-dataset { background: rgba(139,148,158,0.15); color: var(--muted); }
+  .type-resource { background: rgba(248,81,73,0.15); color: var(--red); }
+
+  .domain-tag { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; background: rgba(88,166,255,0.1); color: var(--accent); }
+  .cost-tag { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; background: rgba(63,185,80,0.1); color: var(--green); }
+
+  .feed-summary { color: var(--muted); font-size: 0.9em; margin-bottom: 8px; }
+  .feed-why { font-size: 0.8em; color: var(--green); font-style: italic; }
+
+  .feed-url { font-size: 0.8em; color: var(--accent); text-decoration: none; }
+  .feed-url:hover { text-decoration: underline; }
+
+  /* Add item panel */
+  .add-panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+  .add-panel h3 { margin-bottom: 12px; font-size: 1em; }
+  .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .add-form .full { grid-column: 1 / -1; }
+  .add-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; width: 100%; }
+  .add-input::placeholder { color: #484f58; }
+  select.add-input { appearance: auto; }
+  .add-btn { background: var(--green); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state h3 { color: var(--text); margin-bottom: 8px; }
+
+  .footer { padding: 20px; color: var(--muted); font-size: 0.8em; border-top: 1px solid var(--border); margin-top: 24px; }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  .stats-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: center; flex: 1; }
+  .stat-value { font-size: 1.5em; font-weight: bold; }
+  .stat-label { font-size: 0.75em; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR: Your Profile -->
+  <div class="sidebar">
+    <h1>Front Page</h1>
+    <div class="subtitle">Your hedonic content feed</div>
+
+    <button class="import-btn" onclick="document.getElementById('fileInput').click()">Import AltPath Assessment</button>
+    <input type="file" id="fileInput" class="file-input" accept=".json" onchange="importAssessment(event)">
+
+    <div id="profile-display">
+      <div class="empty-state" style="padding:20px; font-size:0.85em;">
+        No profile loaded.<br>Import your altpath assessment or add items to get started.
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN: Feed -->
+  <div class="main">
+    <div class="stats-row" id="stats-row" style="display:none">
+      <div class="stat-card"><span class="stat-value" id="stat-items" style="color:var(--accent)">0</span><span class="stat-label">Items</span></div>
+      <div class="stat-card"><span class="stat-value" id="stat-relevant" style="color:var(--green)">0</span><span class="stat-label">Relevant</span></div>
+      <div class="stat-card"><span class="stat-value" id="stat-blockers" style="color:var(--red)">0</span><span class="stat-label">Unblockers</span></div>
+    </div>
+
+    <div class="feed-controls" id="feed-controls" style="display:none">
+      <button class="filter-btn active" onclick="filterFeed('all', this)">All</button>
+      <button class="filter-btn" onclick="filterFeed('tool', this)">Tools</button>
+      <button class="filter-btn" onclick="filterFeed('research', this)">Research</button>
+      <button class="filter-btn" onclick="filterFeed('policy', this)">Policy</button>
+      <button class="filter-btn" onclick="filterFeed('news', this)">News</button>
+      <button class="filter-btn" onclick="filterFeed('dataset', this)">Datasets</button>
+      <button class="filter-btn" onclick="filterFeed('resource', this)">Resources</button>
+    </div>
+
+    <!-- Add item panel -->
+    <div class="add-panel">
+      <h3>Add Content to Your Feed</h3>
+      <div class="add-form">
+        <input type="text" class="add-input full" id="add-title" placeholder="Title">
+        <input type="text" class="add-input" id="add-url" placeholder="URL (optional)">
+        <select class="add-input" id="add-type">
+          <option value="tool">Tool</option>
+          <option value="research">Research</option>
+          <option value="policy">Policy</option>
+          <option value="news">News</option>
+          <option value="dataset">Dataset</option>
+          <option value="resource">Resource</option>
+        </select>
+        <input type="text" class="add-input full" id="add-summary" placeholder="Summary / description">
+        <input type="text" class="add-input" id="add-domains" placeholder="Domains: 03,04,07">
+        <input type="text" class="add-input" id="add-costs" placeholder="Costs modified: A,T,F">
+        <select class="add-input" id="add-direction">
+          <option value="">Cost direction...</option>
+          <option value="decreased">Decreased (reduces cost)</option>
+          <option value="increased">Increased (adds cost)</option>
+        </select>
+        <button class="add-btn" onclick="addItem()">Add to Feed</button>
+      </div>
+    </div>
+
+    <h2 id="feed-title">Your Feed</h2>
+    <div id="feed-container">
+      <div class="empty-state">
+        <h3>No items yet</h3>
+        <p>Add content above, or import your AltPath assessment to see personalized suggestions.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      Built by <a href="https://altpath.ai">AltPath AI</a> — Solve problems first. Beautify answers second.<br>
+      <a href="https://github.com/altpath-ai/highnoon">GitHub</a> · pip install frontpage · pip install altpath
+    </div>
+  </div>
+</div>
+
+<script>
+const DOMAINS = {
+  "01":"NOURISHMENT","02":"SHELTER","03":"HEALTH","04":"CARE","05":"MOBILITY",
+  "06":"GROWTH","07":"CONNECTION","08":"RECREATION","09":"EXPRESSION","10":"MEANING"
+};
+const COSTS = { T:"TIME",F:"FINANCIAL",A:"ATTENTION",P:"PHYSICAL",S:"SOCIAL",K:"KNOWLEDGE",X:"STATUS" };
+
+let profile = null;
+let feedItems = [];
+let currentFilter = 'all';
+
+// === PROFILE ===
+function importAssessment(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      profile = JSON.parse(e.target.result);
+      renderProfile();
+      rerankFeed();
+      addSuggestedItems();
+    } catch(err) { alert('Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+}
+
+function renderProfile() {
+  if (!profile) return;
+  const el = document.getElementById('profile-display');
+
+  // Ends
+  let html = '<hr class="divider"><div class="profile-section"><h3>Your ENDS</h3>';
+  profile.ends.forEach(e => {
+    const color = e.score >= 8 ? 'var(--green)' : e.score >= 5 ? 'var(--accent)' : e.score >= 3 ? 'var(--yellow)' : 'var(--red)';
+    const badge = e.score < 5 ? ' <span class="gap-badge">GAP</span>' : e.score >= 8 ? ' <span class="strength-badge">OK</span>' : '';
+    html += `<div class="domain-mini">
+      <span class="code">${e.code}</span>
+      <span class="name">${e.name}</span>
+      <div class="bar-mini" style="width:${e.score*12}px;background:${color}"></div>
+      <span class="score-mini">${e.score}</span>${badge}
+    </div>`;
+  });
+  html += '</div>';
+
+  // Means
+  html += '<div class="profile-section"><h3>Your MEANS</h3>';
+  profile.means.forEach(m => {
+    const color = m.burden >= 8 ? 'var(--red)' : m.burden >= 6 ? 'var(--orange)' : m.burden >= 4 ? 'var(--yellow)' : 'var(--green)';
+    const blocker = m.blocks.length ? ` <span class="blocker-tag">blocks ${m.blocks.map(b=>DOMAINS[b]||b).join(',')}</span>` : '';
+    html += `<div class="cost-mini">
+      <span class="code">${m.code}</span>
+      <span class="name">${m.name}</span>
+      <div class="bar-mini" style="width:${m.burden*12}px;background:${color}"></div>
+      <span class="score-mini">${m.burden}</span>${blocker}
+    </div>`;
+  });
+  html += '</div>';
+
+  // Indices
+  html += `<hr class="divider"><div class="profile-section"><h3>Indices</h3>
+    <div style="font-size:0.9em">Hedonic: <strong>${profile.hedonicIndex}</strong> · Cost: <strong>${profile.costIndex}</strong> · Net: <strong style="color:${profile.netHedonic >= 0 ? 'var(--green)' : 'var(--red)'}">${profile.netHedonic}</strong></div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// === FEED SCORING ===
+function getGaps() {
+  if (!profile) return [];
+  return profile.ends.filter(e => e.score < 5).map(e => e.code);
+}
+function getHeavyCosts() {
+  if (!profile) return [];
+  return profile.means.filter(m => m.burden >= 6).map(m => m.code);
+}
+function getBlockingCosts() {
+  if (!profile) return {};
+  const gaps = new Set(getGaps());
+  const blocking = {};
+  profile.means.forEach(m => {
+    if (m.burden >= 6) {
+      const relevant = m.blocks.filter(d => gaps.has(d));
+      if (relevant.length) blocking[m.code] = relevant;
+    }
+  });
+  return blocking;
+}
+
+function scoreItem(item) {
+  let score = 0;
+  const gaps = new Set(getGaps());
+  const heavy = new Set(getHeavyCosts());
+  const blocking = getBlockingCosts();
+
+  // Tier 1: Unblocks deficient domain
+  item.domains.forEach(d => {
+    if (gaps.has(d)) {
+      item.costs.forEach(c => {
+        if (blocking[c] && blocking[c].includes(d) && item.direction === 'decreased') {
+          score += 10;
+        }
+      });
+    }
+  });
+  // Tier 2: Reduces heavy cost
+  item.costs.forEach(c => {
+    if (heavy.has(c) && item.direction === 'decreased') score += 5;
+  });
+  // Tier 3: Serves gap domain
+  item.domains.forEach(d => { if (gaps.has(d)) score += 3; });
+  // Type bonus
+  const bonus = {tool:2,resource:1.5,policy:1.5,research:1,dataset:0.5,news:0.5};
+  score += bonus[item.type] || 0;
+
+  return score;
+}
+
+function explainItem(item) {
+  const reasons = [];
+  const gaps = new Set(getGaps());
+  const heavy = new Set(getHeavyCosts());
+  const blocking = getBlockingCosts();
+
+  item.domains.forEach(d => {
+    if (gaps.has(d)) {
+      const dn = DOMAINS[d] || d;
+      item.costs.forEach(c => {
+        if (blocking[c] && blocking[c].includes(d)) {
+          reasons.push(`Unblocks ${dn} by reducing ${COSTS[c]||c}`);
+        }
+      });
+      if (!reasons.some(r => r.includes(dn))) reasons.push(`Serves ${dn} (gap domain)`);
+    }
+  });
+  item.costs.forEach(c => {
+    if (heavy.has(c) && item.direction === 'decreased') {
+      const cn = COSTS[c] || c;
+      if (!reasons.some(r => r.includes(cn))) reasons.push(`Reduces ${cn} burden`);
+    }
+  });
+  return reasons.length ? reasons.join('; ') : 'General relevance';
+}
+
+function getTier(score) {
+  if (score >= 15) return 'tier1';
+  if (score >= 8) return 'tier2';
+  if (score >= 3) return 'tier3';
+  return 'tier4';
+}
+
+// === FEED RENDERING ===
+function rerankFeed() {
+  feedItems.forEach(item => {
+    item.score = profile ? scoreItem(item) : 0;
+    item.why = profile ? explainItem(item) : '';
+  });
+  feedItems.sort((a, b) => b.score - a.score);
+  renderFeed();
+}
+
+function renderFeed() {
+  const container = document.getElementById('feed-container');
+  const filtered = currentFilter === 'all' ? feedItems : feedItems.filter(i => i.type === currentFilter);
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state"><h3>No items</h3><p>Add content above or change your filter.</p></div>';
+    document.getElementById('stats-row').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('stats-row').style.display = 'flex';
+  document.getElementById('feed-controls').style.display = 'flex';
+  document.getElementById('stat-items').textContent = feedItems.length;
+  document.getElementById('stat-relevant').textContent = feedItems.filter(i => i.score >= 3).length;
+  document.getElementById('stat-blockers').textContent = feedItems.filter(i => i.score >= 15).length;
+
+  container.innerHTML = filtered.map(item => {
+    const tier = getTier(item.score);
+    const domainTags = item.domains.map(d => `<span class="domain-tag">${DOMAINS[d]||d}</span>`).join(' ');
+    const costTags = item.costs.map(c => `<span class="cost-tag">${item.direction === 'decreased' ? '↓' : '↑'} ${COSTS[c]||c}</span>`).join(' ');
+    const urlLink = item.url ? `<a href="${item.url}" class="feed-url" target="_blank">${item.url}</a>` : '';
+
+    return `<div class="feed-item ${tier}">
+      <div class="feed-header">
+        <span class="feed-title">${item.title}</span>
+        <span class="feed-score">${item.score.toFixed(1)}</span>
+      </div>
+      <div class="feed-meta">
+        <span class="type-badge type-${item.type}">${item.type}</span>
+        ${domainTags} ${costTags}
+      </div>
+      ${item.summary ? `<div class="feed-summary">${item.summary}</div>` : ''}
+      ${item.why ? `<div class="feed-why">${item.why}</div>` : ''}
+      ${urlLink}
+    </div>`;
+  }).join('');
+}
+
+function filterFeed(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFeed();
+}
+
+// === ADD ITEMS ===
+function addItem() {
+  const title = document.getElementById('add-title').value.trim();
+  if (!title) return;
+
+  const item = {
+    title,
+    url: document.getElementById('add-url').value.trim(),
+    type: document.getElementById('add-type').value,
+    summary: document.getElementById('add-summary').value.trim(),
+    domains: document.getElementById('add-domains').value.split(',').map(s=>s.trim()).filter(Boolean),
+    costs: document.getElementById('add-costs').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean),
+    direction: document.getElementById('add-direction').value,
+    score: 0,
+    why: '',
+  };
+
+  feedItems.push(item);
+
+  // Clear form
+  ['add-title','add-url','add-summary','add-domains','add-costs'].forEach(id => document.getElementById(id).value = '');
+
+  rerankFeed();
+}
+
+// === SUGGESTED ITEMS (auto-added when profile loaded) ===
+function addSuggestedItems() {
+  if (!profile) return;
+  const gaps = getGaps();
+  const blocking = getBlockingCosts();
+
+  const suggestions = {
+    "03": [
+      {title:"Mindfulness-Based Stress Reduction: Meta-Analysis",type:"research",summary:"MBSR reduces cognitive load and improves health outcomes across 47 studies",domains:["03"],costs:["A"],direction:"decreased"},
+      {title:"Headspace — Guided Meditation App",type:"tool",summary:"10-minute daily sessions that reduce attention burden and improve sleep quality",domains:["03"],costs:["A"],direction:"decreased",url:"https://headspace.com"},
+      {title:"CDC Physical Activity Guidelines 2026",type:"research",summary:"Updated exercise recommendations for adults — minimum effective doses",domains:["03"],costs:[],direction:""},
+      {title:"Simple Habit Tracker (open source)",type:"tool",summary:"Zero-decision habit tracking — reduces cognitive load of health routines",domains:["03"],costs:["A"],direction:"decreased",url:"https://github.com/topics/habit-tracker"},
+    ],
+    "04": [
+      {title:"Quality Time Research: Presence Over Duration",type:"research",summary:"Studies show 15 min of fully present time > 2hrs of distracted time for bonding",domains:["04"],costs:["A"],direction:"decreased"},
+      {title:"Family Meal Planning — 15 Min/Week App",type:"tool",summary:"Automates meal decisions, frees attention for family presence",domains:["04","01"],costs:["A","T"],direction:"decreased"},
+      {title:"Paid Family Leave Policy Tracker",type:"policy",summary:"Track state-by-state family leave legislation and its hedonic impact",domains:["04"],costs:["T"],direction:"decreased"},
+    ],
+    "07": [
+      {title:"Social Prescribing: The Evidence Base",type:"research",summary:"GPs prescribing social activities shows measurable health + connection outcomes",domains:["07","03"],costs:[],direction:""},
+      {title:"Meetup Automation — Find Groups by Interest",type:"tool",summary:"Reduces coordination cost of finding social groups",domains:["07"],costs:["A","T"],direction:"decreased"},
+    ],
+    "08": [
+      {title:"Micro-Recovery Research: 5-Minute Breaks",type:"research",summary:"Short intentional breaks during work recover more attention than long passive rest",domains:["08"],costs:["A"],direction:"decreased"},
+    ],
+  };
+
+  gaps.forEach(code => {
+    const items = suggestions[code] || [];
+    items.forEach(s => {
+      // Don't add duplicates
+      if (!feedItems.some(f => f.title === s.title)) {
+        feedItems.push({...s, score: 0, why: '', url: s.url || ''});
+      }
+    });
+  });
+
+  // Also add attention-reducer suggestions if A is heavy
+  if (getHeavyCosts().includes('A')) {
+    const attentionItems = [
+      {title:"Automation Tools That Save 10hrs/Week",type:"tool",summary:"Reduce cognitive load through workflow automation",domains:[],costs:["A"],direction:"decreased"},
+      {title:"The 5-Minute Journal: Eliminate Decision Fatigue",type:"tool",summary:"Structured journaling replaces open-ended reflection with guided prompts",domains:["10"],costs:["A"],direction:"decreased"},
+      {title:"Digital Minimalism — Cal Newport",type:"resource",summary:"Framework for reducing attention fragmentation from technology",domains:[],costs:["A"],direction:"decreased"},
+    ];
+    attentionItems.forEach(s => {
+      if (!feedItems.some(f => f.title === s.title)) {
+        feedItems.push({...s, score: 0, why: '', url: s.url || ''});
+      }
+    });
+  }
+
+  rerankFeed();
+}
+</script>
+</body>
+</html>
