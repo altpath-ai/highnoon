@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "altpath"
+version = "0.1.0"
+description = "Open-source personal hedonic life assessment — discover your optimal path across 10 life domains"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "AltPath AI", email = "hello@altpath.ai" },
+]
+keywords = [
+    "life-design",
+    "assessment",
+    "hedonics",
+    "quality-of-life",
+    "self-discovery",
+    "well-being",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://altpath.ai"
+Repository = "https://github.com/altpath-ai/highnoon"
