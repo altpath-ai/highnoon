@@ -85,9 +85,18 @@ def cmd_save(args):
     print(f"  Assessed: {len(software)} projects")
     for s in software:
         print(f"    - {s['project']} ({s['assessed_at'][:10]})")
-    print(f"  Graded: {len(grades)} projects")
-    for g in grades[:5]:
-        print(f"    {g['overall_grade']}  {g['item_name']}")
+    print(f"\n  Graded: {len(grades)} projects")
+    for g in grades:
+        tags = g.get("seo_tags", [])
+        htc = [t for t in tags if t.startswith("serves-")]
+        hqc = [t for t in tags if t.startswith("reduces-") or t.startswith("increases-")]
+        print(f"    {g['overall_grade']:<3} {g['item_name']}")
+        if htc:
+            print(f"        ends:  {' '.join(htc)}")
+        if hqc:
+            print(f"        costs: {' '.join(hqc)}")
+        if tags:
+            print(f"        tags:  {' | '.join(tags)}")
     print(f"\n  Storage: ~/.hedonics/software/")
     print()
 

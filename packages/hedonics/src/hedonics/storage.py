@@ -226,6 +226,46 @@ class HedonicGrade:
         else: self.overall_grade = "F"
         return self.overall_grade
 
+    def seo_tags(self) -> list[str]:
+        """Generate SEO-searchable hedonic tags for this item."""
+        from hedonics.taxonomy import DOMAINS
+        from hedonics.hqc import COST_CATEGORIES
+
+        tags = []
+
+        # HTC tags (ends served)
+        for d in self.domains_served:
+            domain = DOMAINS.get(d)
+            if domain:
+                tags.append(f"HTC-{d}")
+                tags.append(f"HTC-{domain.name}")
+                tags.append(f"serves-{domain.name.lower()}")
+
+        # HQC tags (costs modified)
+        for c in self.costs_modified:
+            cat_name = COST_CATEGORIES.get(c, c)
+            effect = self.cost_effects.get(c, {})
+            direction = effect.get("direction", "modified")
+            tags.append(f"HQC-{c}")
+            if direction == "decreased":
+                tags.append(f"reduces-{cat_name.lower()}-cost")
+            elif direction == "increased":
+                tags.append(f"increases-{cat_name.lower()}-cost")
+            tags.append(f"{direction}-{cat_name.lower()}")
+
+        # Meta tags
+        self.compute_overall()
+        tags.extend([
+            f"grade-{self.overall_grade}",
+            f"purpose-{self.purpose_score:.0f}",
+            f"efficiency-{self.cost_efficiency:.0f}",
+            f"relevance-{self.relevance_score:.0f}",
+            "hedonics-driven-development",
+            "HDD",
+        ])
+
+        return tags
+
     def to_dict(self) -> dict:
         self.compute_overall()
         return {
@@ -243,6 +283,7 @@ class HedonicGrade:
             "graded_at": self.graded_at or datetime.now().isoformat(),
             "graded_by": self.graded_by,
             "notes": self.notes,
+            "seo_tags": self.seo_tags(),
         }
 
 
