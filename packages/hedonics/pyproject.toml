@@ -4,13 +4,16 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hedonics"
-version = "0.1.0"
+version = "0.1.1"
 description = "Human Hedonics Teleology Classification System — classify software by the human purposes it serves"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
     { name = "AltPath AI", email = "hello@altpath.ai" },
+]
+dependencies = [
+    "fastmcp>=2.0",
 ]
 keywords = [
     "hedonics",
@@ -19,6 +22,7 @@ keywords = [
     "purpose",
     "human-centered",
     "hedonic-quality",
+    "mcp",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -30,6 +34,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries",
 ]
+
+[project.scripts]
+hedonics = "hedonics.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/altpath-ai/highnoon"
