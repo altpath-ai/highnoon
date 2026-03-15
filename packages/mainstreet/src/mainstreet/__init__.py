@@ -12,4 +12,4 @@ Part of the AltPath AI ecosystem: https://altpath.ai
 https://github.com/altpath-ai/highnoon
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
