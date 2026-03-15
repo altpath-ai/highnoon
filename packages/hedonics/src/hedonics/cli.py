@@ -179,6 +179,72 @@ def cmd_json(args):
     print(json.dumps(data, indent=2))
 
 
+def cmd_search(args):
+    """Search the hedonic registry."""
+    from hedonics.registry import search, rebuild_index
+    rebuild_index()
+
+    query = " ".join(args.query) if args.query else ""
+    results = search(
+        query=query,
+        domains=args.domain.split(",") if args.domain else None,
+        costs=args.cost.split(",") if args.cost else None,
+        grade=args.grade or "",
+        item_type=args.type or "",
+    )
+
+    if not results:
+        print(f"\n  No results found.")
+        if query:
+            print(f"  Query: {query}")
+        print(f"  Try: hedonics search serves-health")
+        print()
+        return
+
+    print(f"\n  Registry Search — {len(results)} results")
+    if query:
+        print(f"  Query: {query}")
+    print()
+    for r in results:
+        htc = [t for t in r.get("tags", []) if t.startswith("serves-")]
+        hqc = [t for t in r.get("tags", []) if t.startswith("reduces-")]
+        print(f"  {r['grade']:<3} [{r['type']:<8}]  {r['name']}")
+        print(f"      ends: {' '.join(htc) if htc else '—'}  |  costs: {' '.join(hqc) if hqc else '—'}")
+    print()
+
+
+def cmd_registry(args):
+    """Show registry statistics."""
+    from hedonics.registry import rebuild_index, registry_stats
+    rebuild_index()
+    stats = registry_stats()
+
+    print(f"\n  Hedonic Registry — {stats['total_items']} items indexed")
+    print(f"  Rebuilt: {stats['rebuilt_at'][:19]}")
+    print()
+
+    if stats.get("by_type"):
+        print("  By type:")
+        for t, count in stats["by_type"].items():
+            print(f"    {t:<10} {count}")
+
+    if stats.get("by_grade"):
+        print("\n  By grade:")
+        for g, count in sorted(stats["by_grade"].items()):
+            print(f"    {g:<4} {count}")
+
+    if stats.get("domains_covered"):
+        print("\n  Domains covered:")
+        for code, info in stats["domains_covered"].items():
+            print(f"    {code} {info['name']:<14} {info['count']} items")
+
+    if stats.get("costs_covered"):
+        print("\n  Costs covered:")
+        for code, info in stats["costs_covered"].items():
+            print(f"    {code}  {info['name']:<14} {info['count']} items")
+    print()
+
+
 def cmd_save(args):
     """Show all saved data across the hedonics ecosystem."""
     from hedonics.storage import load_profile, list_software_assessments, list_policy_assessments, list_grades, grade_summary
@@ -238,6 +304,15 @@ def main():
     p_blockers.add_argument("domain_code", help="Domain code (01-10)")
 
     sub.add_parser("json", help="Output full taxonomy as JSON")
+
+    p_search = sub.add_parser("search", help="Search the hedonic registry")
+    p_search.add_argument("query", nargs="*", help="Search terms (e.g., serves-health reduces-attention)")
+    p_search.add_argument("--domain", help="Filter by domain codes (e.g., 03,04)")
+    p_search.add_argument("--cost", help="Filter by cost codes (e.g., A,T)")
+    p_search.add_argument("--grade", help="Minimum grade (e.g., B)")
+    p_search.add_argument("--type", help="Item type (software, policy, content)")
+
+    sub.add_parser("registry", help="Show registry statistics")
     sub.add_parser("save", help="Show all saved data across the ecosystem")
 
     args = parser.parse_args()
@@ -253,6 +328,8 @@ def main():
         "cost": cmd_cost,
         "blockers": cmd_blockers,
         "json": cmd_json,
+        "search": cmd_search,
+        "registry": cmd_registry,
         "save": cmd_save,
     }
     commands[args.command](args)

@@ -19,3 +19,4 @@ from hedonics.storage import (
     save_software_assessment, save_policy_assessment, save_feed_items,
     HedonicGrade, grade_summary,
 )
+from hedonics.registry import search, search_by_need, search_cost_reducers, rebuild_index, registry_stats

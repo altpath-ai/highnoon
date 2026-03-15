@@ -21,6 +21,10 @@ from hedonics.storage import (
     save_grade, load_grade, list_grades, grade_summary,
     load_profile, HedonicGrade,
 )
+from hedonics.registry import (
+    search as registry_search, search_by_need, search_cost_reducers,
+    rebuild_index, registry_stats,
+)
 
 # Which costs typically block access to which domains
 DOMAIN_BLOCKERS = {
@@ -363,6 +367,69 @@ def all_grades(item_type: str = None) -> list[dict]:
 def grades_dashboard() -> dict:
     """Summary of all grades across types — counts and grade distribution."""
     return grade_summary()
+
+
+# === REGISTRY ===
+
+@mcp.tool
+def search(query: str = "", domains: list[str] = None, costs: list[str] = None,
+           grade: str = "", item_type: str = "", cost_direction: str = "decreased") -> list[dict]:
+    """Search the hedonic registry for tools, policies, or content.
+
+    Examples:
+        search(query="serves-health reduces-attention")
+        search(domains=["03"], costs=["A"])
+        search(grade="B", item_type="software")
+        search(query="meditation")
+
+    Args:
+        query: Free-text search across tags, names, notes
+        domains: Filter by HTC domains (e.g., ["03", "07"])
+        costs: Filter by HQC costs modified (e.g., ["A", "T"])
+        grade: Minimum grade (e.g., "B" matches B, B+, A, A+)
+        item_type: "software" | "policy" | "content"
+        cost_direction: "decreased" (default) or "increased"
+    """
+    return registry_search(
+        query=query, domains=domains, costs=costs,
+        grade=grade, item_type=item_type, cost_direction=cost_direction,
+    )
+
+
+@mcp.tool
+def find_for_need(domain_code: str) -> list[dict]:
+    """Find everything in the registry that serves a specific hedonic need.
+    E.g., find_for_need("03") → all tools/policies/content that serve HEALTH."""
+    domain = DOMAINS.get(domain_code)
+    name = domain.name if domain else domain_code
+    results = search_by_need(domain_code)
+    return {
+        "domain": name,
+        "query": f"serves {name}, reduces costs",
+        "results": results,
+        "count": len(results),
+    }
+
+
+@mcp.tool
+def find_cost_reducers(cost_code: str) -> list[dict]:
+    """Find everything that reduces a specific cost.
+    E.g., find_cost_reducers("A") → all tools that reduce ATTENTION burden."""
+    cost_name = COST_CATEGORIES.get(cost_code, cost_code)
+    results = search_cost_reducers(cost_code)
+    return {
+        "cost": cost_name,
+        "query": f"reduces {cost_name} cost",
+        "results": results,
+        "count": len(results),
+    }
+
+
+@mcp.tool
+def registry() -> dict:
+    """Show registry statistics — what's indexed, coverage across domains and costs."""
+    rebuild_index()
+    return registry_stats()
 
 
 @mcp.tool
