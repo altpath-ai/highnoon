@@ -81,7 +81,7 @@ def cmd_classify(args):
     means_keywords = {
         "T": ["time", "hour", "minutes", "schedule", "wait", "fast", "slow", "quick", "efficient", "automate"],
         "F": ["cost", "price", "money", "afford", "cheap", "expensive", "budget", "save", "free", "pay"],
-        "A": ["attention", "focus", "cognitive", "distract", "overwhelm", "simple", "easy", "complex", "confus"],
+        "A": ["attention", "focus", "cognitive", "distract", "overwhelm", "simple", "easy", "complex", "confus", "willpower", "discipline", "decision", "self-control", "habit", "impulse", "motivation"],
         "P": ["effort", "physical", "pain", "comfort", "exert", "exhaust", "energy", "fatigue"],
         "S": ["privacy", "relationship", "reputation", "trust", "obligation", "social cost"],
         "E": ["carbon", "emission", "waste", "environment", "sustain", "green", "eco"],

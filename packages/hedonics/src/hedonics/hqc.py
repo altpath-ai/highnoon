@@ -9,6 +9,16 @@ Costs are the MEANS side. Every hedonic end (HTC) is accessed through costs.
 A person can't improve CONNECTION if their TIME, ATTENTION, and FINANCIAL
 costs leave no resources for redeployment. Tools that modify costs unlock
 access to ends.
+
+Note on WILLPOWER: Research (Baumeister 2024, Inzlicht & Schmeichel 2012)
+shows willpower is best modeled as the ALLOCATION mechanism, not a separate
+resource. "Decision fatigue" and "self-regulation" are sub-costs of ATTENTION:
+  A.5 = Decision fatigue (each allocation choice depletes willingness for next)
+  A.6 = Self-regulation (maintaining behavior against competing impulses)
+The resource model says willpower depletes like a muscle. The process model
+says attention SHIFTS from duty toward reward. The 2024 consensus: both are
+partially right — the body CONSERVES willpower strategically (allocation, not
+depletion). Sleep recovers it (T→A exchange path).
 """
 
 from dataclasses import dataclass, field
@@ -51,6 +61,8 @@ COST_SUBCATEGORIES = {
         "2": "Uncertainty / ambiguity borne",
         "3": "Information gathering (research, comparison)",
         "4": "Monitoring / vigilance",
+        "5": "Decision fatigue (allocation cost — each choice depletes willingness for next choice)",
+        "6": "Self-regulation (willpower — maintaining chosen behavior against competing impulses)",
     },
     "P": {
         "1": "Bodily effort / exertion",
