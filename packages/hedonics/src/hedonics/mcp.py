@@ -17,6 +17,10 @@ from hedonics.hqc import (
 from hedonics.fungibility import (
     CostProfile, compute_exchanges, EXCHANGE_RATES, EXCHANGE_DESCRIPTIONS,
 )
+from hedonics.storage import (
+    save_grade, load_grade, list_grades, grade_summary,
+    load_profile, HedonicGrade,
+)
 
 # Which costs typically block access to which domains
 DOMAIN_BLOCKERS = {
@@ -284,6 +288,81 @@ def exchange_rate(give: str, receive: str) -> dict:
         "description": desc,
         "interpretation": interpretation,
     }
+
+
+# === GRADING ===
+
+@mcp.tool
+def grade(item_name: str, item_type: str, domains_served: list[str] = None,
+          costs_modified: list[str] = None, cost_effects: dict = None,
+          purpose_score: float = 5.0, cost_efficiency: float = 5.0,
+          notes: str = "") -> dict:
+    """Grade any item (software, policy, or content) on its hedonic value.
+
+    Assigns a letter grade (A+ through F) based on:
+    - purpose_score: How well does it serve its declared hedonic purpose? (0-10)
+    - cost_efficiency: How efficiently does it modify costs? (0-10)
+    - relevance_score: Auto-computed from your altpath profile
+
+    Args:
+        item_name: Name of the thing being graded
+        item_type: "software" | "policy" | "content"
+        domains_served: HTC domains it serves (e.g., ["03", "07"])
+        costs_modified: HQC costs it modifies (e.g., ["A", "T"])
+        cost_effects: Dict of cost → {direction, magnitude}
+        purpose_score: 0-10 rating of purpose fulfillment
+        cost_efficiency: 0-10 rating of cost modification efficiency
+        notes: Grading notes
+    """
+    # Compute relevance from profile
+    relevance = 0.0
+    user_profile = load_profile()
+    if user_profile:
+        gaps = {e["code"] for e in user_profile.get("ends", []) if e["score"] < 5}
+        heavy = {m["code"] for m in user_profile.get("means", []) if m["burden"] >= 6}
+        for d in (domains_served or []):
+            if d in gaps:
+                relevance += 3.0
+        for c in (costs_modified or []):
+            if c in heavy:
+                relevance += 2.0
+        relevance = min(relevance, 10.0)
+
+    g = HedonicGrade(
+        item_type=item_type,
+        item_name=item_name,
+        domains_served=domains_served or [],
+        domain_quality={},
+        costs_modified=costs_modified or [],
+        cost_effects=cost_effects or {},
+        purpose_score=purpose_score,
+        cost_efficiency=cost_efficiency,
+        relevance_score=relevance,
+        notes=notes,
+    )
+    path = save_grade(g)
+    return {**g.to_dict(), "saved_to": str(path)}
+
+
+@mcp.tool
+def get_grade(item_type: str, item_name: str) -> dict:
+    """Look up a previously saved hedonic grade."""
+    result = load_grade(item_type, item_name)
+    if result:
+        return result
+    return {"error": f"No grade found for {item_type}/{item_name}"}
+
+
+@mcp.tool
+def all_grades(item_type: str = None) -> list[dict]:
+    """List all hedonic grades, optionally filtered by type (software/policy/content)."""
+    return list_grades(item_type)
+
+
+@mcp.tool
+def grades_dashboard() -> dict:
+    """Summary of all grades across types — counts and grade distribution."""
+    return grade_summary()
 
 
 @mcp.tool

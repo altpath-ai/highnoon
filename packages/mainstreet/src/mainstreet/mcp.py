@@ -14,6 +14,7 @@ from mainstreet.datasources import (
 from mainstreet.policy import PolicyAssessment
 from hedonics.taxonomy import DOMAINS
 from hedonics.hqc import COST_CATEGORIES
+from hedonics.storage import save_policy_assessment, load_policy_assessment, list_policy_assessments
 
 mcp = FastMCP(
     name="Main Street",
@@ -191,6 +192,26 @@ def add_distribution(policy_name: str, group: str, effect: str,
     )
     return {"status": "Distribution added",
             "groups_so_far": len(_assessments[policy_name].distributional)}
+
+
+@mcp.tool
+def save_assessment(policy_name: str) -> dict:
+    """Save a policy assessment to shared hedonics storage (~/.hedonics/).
+    Other tools can then reference and grade it."""
+    if policy_name not in _assessments:
+        return {"error": f"No assessment found for '{policy_name}'."}
+    data = _assessments[policy_name].to_dict()
+    saved_path = save_policy_assessment(policy_name, data)
+    return {"saved_to": str(saved_path), "policy": policy_name}
+
+
+@mcp.tool
+def load_saved_assessment(policy_name: str) -> dict:
+    """Load a previously saved policy assessment from shared storage."""
+    result = load_policy_assessment(policy_name)
+    if result:
+        return result
+    return {"error": f"No saved assessment for '{policy_name}'."}
 
 
 @mcp.tool

@@ -10,6 +10,7 @@ Usage:
 from fastmcp import FastMCP
 from highnoon.assess import SoftwareAssessment, read_project_signals
 from hedonics.taxonomy import DOMAINS
+from hedonics.storage import save_software_assessment, load_software_assessment, list_software_assessments
 
 mcp = FastMCP(
     name="High Noon",
@@ -87,6 +88,26 @@ def add_cost(path: str = ".", category: str = "", subcategory: str = "",
         direction=direction, magnitude=magnitude, distribution=distribution,
     )
     return _assessments[path].to_dict()
+
+
+@mcp.tool
+def save(path: str = ".") -> dict:
+    """Save the current assessment to shared hedonics storage (~/.hedonics/).
+    Other tools (frontpage, mainstreet) can then reference it."""
+    if path not in _assessments:
+        return {"error": f"No assessment found for {path}. Run 'assess' first."}
+    data = _assessments[path].to_dict()
+    saved_path = save_software_assessment(data.get("project", "unknown"), data)
+    return {"saved_to": str(saved_path), "project": data.get("project")}
+
+
+@mcp.tool
+def load(project_name: str) -> dict:
+    """Load a previously saved software assessment from shared storage."""
+    result = load_software_assessment(project_name)
+    if result:
+        return result
+    return {"error": f"No saved assessment for '{project_name}'. Run 'assess' and 'save' first."}
 
 
 @mcp.tool

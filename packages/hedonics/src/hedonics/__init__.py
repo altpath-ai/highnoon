@@ -14,3 +14,8 @@ from hedonics.taxonomy import DOMAINS, get_domain, list_domains
 from hedonics.htc import HTC
 from hedonics.hqc import HQC, HQCM, list_all_costs, get_cost_subcategories
 from hedonics.fungibility import CostProfile, Exchange, compute_exchanges
+from hedonics.storage import (
+    save_profile, load_profile, save_grade, load_grade, list_grades,
+    save_software_assessment, save_policy_assessment, save_feed_items,
+    HedonicGrade, grade_summary,
+)

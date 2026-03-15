@@ -19,6 +19,8 @@ from altpath.assessment import Assessment
 from hedonics.taxonomy import DOMAINS, list_domains
 from hedonics.hqc import COST_CATEGORIES
 
+from hedonics.storage import save_profile, load_profile
+
 ALTPATH_DIR = Path.home() / ".altpath"
 ASSESSMENT_FILE = ALTPATH_DIR / "assessment.json"
 HISTORY_DIR = ALTPATH_DIR / "history"
@@ -173,8 +175,13 @@ def cmd_assess(args):
     with open(history_file, "w") as f:
         json.dump(result, f, indent=2)
 
+    # Also save to shared hedonics storage
+    hedonics_path = save_profile(result)
+
     print(f"\n  Assessment saved to: {ASSESSMENT_FILE}")
     print(f"  History saved to:    {history_file}")
+    print(f"  Shared storage:      {hedonics_path}")
+    print(f"  (Other tools can now read your profile via ~/.hedonics/)")
 
     # === RECOMMEND FRONTPAGE ===
     if result["gaps"]:

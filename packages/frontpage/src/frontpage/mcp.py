@@ -16,6 +16,10 @@ from frontpage.sources import (
 )
 from hedonics.taxonomy import DOMAINS
 from hedonics.hqc import COST_CATEGORIES
+from hedonics.storage import (
+    load_profile, save_feed_items, load_feed_items,
+    save_grade, HedonicGrade,
+)
 
 mcp = FastMCP(
     name="Front Page",
@@ -191,6 +195,77 @@ def suggest_searches(max_per_domain: int = 3) -> list[dict]:
         })
 
     return suggestions
+
+
+@mcp.tool
+def load_my_profile() -> dict:
+    """Load your altpath profile from shared storage (~/.hedonics/).
+    Use this instead of set_profile() if you've already done an altpath assessment."""
+    saved = load_profile()
+    if not saved:
+        return {"error": "No profile found in ~/.hedonics/. Run 'altpath assess' first."}
+
+    global _profile
+    _profile = UserProfile(
+        domain_scores={e["code"]: e["score"] for e in saved.get("ends", [])},
+        cost_burdens={m["code"]: m["burden"] for m in saved.get("means", [])},
+        cost_blocks={m["code"]: m.get("blocks", []) for m in saved.get("means", []) if m.get("blocks")},
+    )
+    rerankFeed()
+    return {
+        "profile_loaded": True,
+        "source": "~/.hedonics/profile/assessment.json",
+        "gap_domains": [DOMAINS[d].name for d in _profile.gap_domains() if d in DOMAINS],
+        "heavy_costs": [COST_CATEGORIES.get(c, c) for c in _profile.heavy_costs()],
+    }
+
+
+def rerankFeed():
+    """Re-rank all feed items against the current profile."""
+    if not _profile.domain_scores:
+        return
+    for item in _feed_items:
+        from frontpage.feed import score_item
+        item.relevance_score = score_item(item, _profile)
+
+
+@mcp.tool
+def save_my_feed() -> dict:
+    """Save current feed items to shared storage (~/.hedonics/feed/).
+    Items persist between sessions."""
+    items = [item.to_dict() for item in _feed_items]
+    path = save_feed_items(items)
+    return {"saved": len(items), "path": str(path)}
+
+
+@mcp.tool
+def grade_item(title: str, purpose_score: float = 5.0,
+               cost_efficiency: float = 5.0, notes: str = "") -> dict:
+    """Grade a feed item on its hedonic value. Saves to shared grading storage.
+
+    Args:
+        title: Title of the feed item to grade
+        purpose_score: 0-10, how well does it serve its purpose?
+        cost_efficiency: 0-10, how efficiently does it modify costs?
+        notes: Optional grading notes
+    """
+    item = next((i for i in _feed_items if i.title == title), None)
+    if not item:
+        return {"error": f"Item '{title}' not found in feed."}
+
+    g = HedonicGrade(
+        item_type="content",
+        item_name=title,
+        domains_served=item.htc_domains,
+        costs_modified=item.hqc_costs,
+        cost_effects={"direction": item.cost_direction} if item.cost_direction else {},
+        purpose_score=purpose_score,
+        cost_efficiency=cost_efficiency,
+        relevance_score=item.relevance_score,
+        notes=notes,
+    )
+    path = save_grade(g)
+    return {**g.to_dict(), "saved_to": str(path)}
 
 
 @mcp.tool
