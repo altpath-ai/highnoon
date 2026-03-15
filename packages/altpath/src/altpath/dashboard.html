@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AltPath — Personal Hedonic Life Assessment</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --orange: #d18616;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin-bottom: 4px; }
+  h2 { font-size: 1.2em; color: var(--accent); margin: 24px 0 12px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; }
+  .step-label { font-size: 0.85em; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+  .domain-row, .cost-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px; margin: 4px 0;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .domain-row:hover, .cost-row:hover { border-color: var(--accent); }
+  .domain-code { font-weight: bold; color: var(--accent); min-width: 28px; }
+  .domain-name { font-weight: 600; min-width: 130px; }
+  .domain-desc { color: var(--muted); font-size: 0.85em; flex: 1; }
+  .slider-container { display: flex; align-items: center; gap: 8px; min-width: 200px; }
+  input[type="range"] { width: 120px; accent-color: var(--accent); }
+  .score-display { font-weight: bold; min-width: 24px; text-align: center; font-size: 1.1em; }
+  .notes-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 4px 8px; font-size: 0.8em; width: 140px; }
+  .notes-input::placeholder { color: #484f58; }
+
+  .bar-container { display: flex; align-items: center; gap: 8px; }
+  .bar { height: 18px; border-radius: 4px; transition: width 0.3s; min-width: 2px; }
+
+  .results { display: none; }
+  .results.visible { display: block; }
+
+  .index-card { display: inline-flex; flex-direction: column; align-items: center; padding: 16px 24px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin: 8px 8px 8px 0; }
+  .index-value { font-size: 2em; font-weight: bold; }
+  .index-label { font-size: 0.8em; color: var(--muted); }
+
+  .blocked-item { padding: 12px 16px; margin: 4px 0; background: var(--card); border-left: 3px solid var(--red); border-radius: 0 8px 8px 0; }
+  .exchange-item { padding: 12px 16px; margin: 4px 0; background: var(--card); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; }
+  .exchange-priority { font-size: 0.8em; color: var(--muted); }
+
+  .blocker-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 2px 6px; font-size: 0.75em; margin: 2px; }
+
+  button { background: var(--accent); color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; margin-top: 16px; }
+  button:hover { opacity: 0.9; }
+  .btn-secondary { background: var(--border); }
+
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85em; }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  .level-thriving { color: var(--green); }
+  .level-adequate { color: var(--accent); }
+  .level-deficient { color: var(--yellow); }
+  .level-critical { color: var(--red); }
+  .level-manageable { color: var(--green); }
+  .level-moderate { color: var(--yellow); }
+  .level-heavy { color: var(--orange); }
+  .level-crushing { color: var(--red); }
+
+  .frontpage-rec { padding: 10px 16px; margin: 4px 0; background: var(--card); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-family: monospace; font-size: 0.9em; }
+</style>
+</head>
+<body>
+
+<h1>AltPath</h1>
+<div class="subtitle">Personal Hedonic Life Assessment — discover what matters, what's blocked, and what to do about it.</div>
+
+<!-- STEP 1: ENDS -->
+<div id="step1">
+  <div class="step-label">Step 1 of 2</div>
+  <h2>Score Your ENDS — How satisfied are you in each life domain?</h2>
+  <div id="domains-container"></div>
+  <button onclick="showStep2()">Next: Score Your Costs →</button>
+</div>
+
+<!-- STEP 2: MEANS -->
+<div id="step2" style="display:none">
+  <div class="step-label">Step 2 of 2</div>
+  <h2>Score Your MEANS — How much burden does each cost impose?</h2>
+  <p style="color:var(--muted); margin-bottom:12px; font-size:0.9em">1 = negligible, 10 = crushing. For high-burden costs, select which gap domains they block.</p>
+  <div id="costs-container"></div>
+  <button onclick="calculateResults()">See My Results →</button>
+  <button class="btn-secondary" onclick="showStep1()" style="margin-left:8px">← Back</button>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="results">
+  <h2>Your Assessment</h2>
+  <div id="index-cards"></div>
+
+  <h2>Your ENDS</h2>
+  <div id="ends-results"></div>
+
+  <h2>Your MEANS</h2>
+  <div id="means-results"></div>
+
+  <div id="blocked-section">
+    <h2>Blocked ENDS — What You Want + What's Stopping You</h2>
+    <div id="blocked-results"></div>
+  </div>
+
+  <div id="exchange-section">
+    <h2>Fungibility Calculus — Trade What You HAVE for What You NEED</h2>
+    <div id="exchange-results"></div>
+  </div>
+
+  <div id="frontpage-section">
+    <h2>Next Step — Use Frontpage for YOUR Gaps</h2>
+    <div id="frontpage-results"></div>
+  </div>
+
+  <hr class="section-divider">
+  <button onclick="downloadAssessment()">Download Assessment (JSON)</button>
+  <button class="btn-secondary" onclick="showStep1()" style="margin-left:8px">← Start Over</button>
+</div>
+
+<div class="footer">
+  Built by <a href="https://altpath.ai">AltPath AI</a> — Solve problems first. Beautify answers second.<br>
+  <a href="https://github.com/altpath-ai/highnoon">GitHub</a> · pip install altpath · pip install frontpage
+</div>
+
+<script>
+const DOMAINS = [
+  { code: "01", name: "NOURISHMENT", desc: "Eating, drinking, savoring" },
+  { code: "02", name: "SHELTER", desc: "Comfort, rest, safety, home" },
+  { code: "03", name: "HEALTH", desc: "Vitality, wellness, bodily integrity" },
+  { code: "04", name: "CARE", desc: "Nurturing, bonding, love" },
+  { code: "05", name: "MOBILITY", desc: "Freedom, exploration, travel" },
+  { code: "06", name: "GROWTH", desc: "Learning, mastery, curiosity" },
+  { code: "07", name: "CONNECTION", desc: "Belonging, intimacy, community" },
+  { code: "08", name: "RECREATION", desc: "Play, leisure, entertainment" },
+  { code: "09", name: "EXPRESSION", desc: "Creating, making, self-actualization" },
+  { code: "10", name: "MEANING", desc: "Purpose, identity, legacy" },
+];
+
+const COSTS = [
+  { code: "T", name: "TIME", desc: "How much time is consumed by obligations?" },
+  { code: "F", name: "FINANCIAL", desc: "How much financial pressure?" },
+  { code: "A", name: "ATTENTION", desc: "How mentally exhausted are you?" },
+  { code: "P", name: "PHYSICAL", desc: "How much physical strain?" },
+  { code: "S", name: "SOCIAL", desc: "How much social obligation or friction?" },
+  { code: "K", name: "KNOWLEDGE", desc: "How much uncertainty or confusion?" },
+  { code: "X", name: "STATUS", desc: "How much pressure to maintain appearances?" },
+];
+
+const EXCHANGE_RATES = {
+  T: { T:1, F:.8, A:.3, P:.2, S:.5, K:.6, X:.4 },
+  F: { T:.7, F:1, A:.4, P:.5, S:.3, K:.5, X:.6 },
+  A: { T:.2, F:.3, A:1, P:.1, S:.4, K:.7, X:.3 },
+  P: { T:.3, F:.4, A:.2, P:1, S:.2, K:.2, X:.3 },
+  S: { T:.4, F:.3, A:.5, P:.2, S:1, K:.4, X:.7 },
+  K: { T:.5, F:.6, A:.6, P:.1, S:.3, K:1, X:.5 },
+  X: { T:.3, F:.5, A:.3, P:.1, S:.7, K:.4, X:1 },
+};
+
+const EXCHANGE_DESC = {
+  "F→T": "Buy time with money (hire help, outsource, automate)",
+  "T→F": "Trade time for money (labor → income)",
+  "K→A": "Knowledge reduces cognitive load (expertise makes things easier)",
+  "T→K": "Trade time for knowledge (study, learn)",
+  "K→F": "Trade knowledge for money (expertise → income)",
+  "K→T": "Knowledge saves time (expertise → efficiency)",
+  "F→A": "Buy attention relief (hire assistant, automation tools)",
+  "F→P": "Buy physical relief (gym, ergonomics, healthcare)",
+  "S→X": "Trade social capital for status (networking → reputation)",
+  "X→S": "Trade status for social access (reputation opens doors)",
+  "S→A": "Social support reduces cognitive burden",
+  "S→T": "Social network saves time (delegation, favors)",
+  "T→A": "Rest recovers attention (sleep, breaks)",
+  "A→K": "Focused attention builds knowledge (deep work)",
+};
+
+// Build domain sliders
+const dc = document.getElementById("domains-container");
+DOMAINS.forEach(d => {
+  dc.innerHTML += `
+    <div class="domain-row">
+      <span class="domain-code">${d.code}</span>
+      <span class="domain-name">${d.name}</span>
+      <span class="domain-desc">${d.desc}</span>
+      <div class="slider-container">
+        <input type="range" min="1" max="10" value="5" id="d_${d.code}" oninput="document.getElementById('dv_${d.code}').textContent=this.value">
+        <span class="score-display" id="dv_${d.code}">5</span>
+      </div>
+      <input type="text" class="notes-input" placeholder="notes..." id="dn_${d.code}">
+    </div>`;
+});
+
+// Build cost sliders
+const cc = document.getElementById("costs-container");
+COSTS.forEach(c => {
+  cc.innerHTML += `
+    <div class="cost-row">
+      <span class="domain-code">${c.code}</span>
+      <span class="domain-name">${c.name}</span>
+      <span class="domain-desc">${c.desc}</span>
+      <div class="slider-container">
+        <input type="range" min="1" max="10" value="5" id="c_${c.code}" oninput="updateCostDisplay('${c.code}')">
+        <span class="score-display" id="cv_${c.code}">5</span>
+      </div>
+      <span id="cb_${c.code}" style="font-size:0.75em"></span>
+    </div>`;
+});
+
+function updateCostDisplay(code) {
+  const val = parseInt(document.getElementById(`c_${code}`).value);
+  document.getElementById(`cv_${code}`).textContent = val;
+  const blockerArea = document.getElementById(`cb_${code}`);
+  if (val >= 6) {
+    const gaps = getGapDomains();
+    if (gaps.length > 0) {
+      blockerArea.innerHTML = "Blocks: " + gaps.map(g =>
+        `<label class="blocker-select"><input type="checkbox" value="${g.code}" class="block_${code}"> ${g.name}</label>`
+      ).join(" ");
+    }
+  } else {
+    blockerArea.innerHTML = "";
+  }
+}
+
+function getGapDomains() {
+  return DOMAINS.filter(d => parseInt(document.getElementById(`d_${d.code}`).value) < 5);
+}
+
+function showStep1() {
+  document.getElementById("step1").style.display = "block";
+  document.getElementById("step2").style.display = "none";
+  document.getElementById("results").classList.remove("visible");
+}
+
+function showStep2() {
+  document.getElementById("step1").style.display = "none";
+  document.getElementById("step2").style.display = "block";
+  // Refresh blocker checkboxes based on current gap domains
+  COSTS.forEach(c => updateCostDisplay(c.code));
+}
+
+function getLevel(score, isCost) {
+  if (isCost) {
+    if (score >= 8) return "crushing";
+    if (score >= 6) return "heavy";
+    if (score >= 4) return "moderate";
+    return "manageable";
+  }
+  if (score >= 8) return "thriving";
+  if (score >= 5) return "adequate";
+  if (score >= 3) return "deficient";
+  return "critical";
+}
+
+function barColor(score, isCost) {
+  if (isCost) {
+    if (score >= 8) return "var(--red)";
+    if (score >= 6) return "var(--orange)";
+    if (score >= 4) return "var(--yellow)";
+    return "var(--green)";
+  }
+  if (score >= 8) return "var(--green)";
+  if (score >= 5) return "var(--accent)";
+  if (score >= 3) return "var(--yellow)";
+  return "var(--red)";
+}
+
+function calculateResults() {
+  document.getElementById("step2").style.display = "none";
+  document.getElementById("results").classList.add("visible");
+
+  // Gather scores
+  const ends = DOMAINS.map(d => ({
+    code: d.code, name: d.name,
+    score: parseInt(document.getElementById(`d_${d.code}`).value),
+    notes: document.getElementById(`dn_${d.code}`).value,
+  }));
+
+  const means = COSTS.map(c => {
+    const blockers = [...document.querySelectorAll(`.block_${c.code}:checked`)].map(cb => cb.value);
+    return {
+      code: c.code, name: c.name,
+      burden: parseInt(document.getElementById(`c_${c.code}`).value),
+      blocks: blockers,
+    };
+  });
+
+  const hedonicIndex = (ends.reduce((s, e) => s + e.score, 0) / ends.length).toFixed(1);
+  const costIndex = (means.reduce((s, m) => s + m.burden, 0) / means.length).toFixed(1);
+  const netHedonic = (hedonicIndex - costIndex).toFixed(1);
+
+  // Index cards
+  document.getElementById("index-cards").innerHTML = `
+    <div class="index-card"><span class="index-value" style="color:var(--accent)">${hedonicIndex}</span><span class="index-label">Hedonic Index</span></div>
+    <div class="index-card"><span class="index-value" style="color:var(--orange)">${costIndex}</span><span class="index-label">Cost Index</span></div>
+    <div class="index-card"><span class="index-value" style="color:${netHedonic >= 0 ? 'var(--green)' : 'var(--red)'}">${netHedonic}</span><span class="index-label">Net Hedonic</span></div>
+  `;
+
+  // Ends results
+  document.getElementById("ends-results").innerHTML = ends.map(e => {
+    const level = getLevel(e.score, false);
+    const color = barColor(e.score, false);
+    return `<div class="domain-row">
+      <span class="domain-code">${e.code}</span>
+      <span class="domain-name">${e.name}</span>
+      <div class="bar-container"><div class="bar" style="width:${e.score * 30}px; background:${color}"></div></div>
+      <span class="score-display">${e.score}/10</span>
+      <span class="level-${level}" style="min-width:80px">${level}</span>
+      <span style="color:var(--muted);font-size:0.8em">${e.notes}</span>
+    </div>`;
+  }).join("");
+
+  // Means results
+  document.getElementById("means-results").innerHTML = means.map(m => {
+    const level = getLevel(m.burden, true);
+    const color = barColor(m.burden, true);
+    const blocks = m.blocks.length ? ` blocks: ${m.blocks.map(b => DOMAINS.find(d=>d.code===b)?.name||b).join(", ")}` : "";
+    return `<div class="cost-row">
+      <span class="domain-code">${m.code}</span>
+      <span class="domain-name">${m.name}</span>
+      <div class="bar-container"><div class="bar" style="width:${m.burden * 30}px; background:${color}"></div></div>
+      <span class="score-display">${m.burden}/10</span>
+      <span class="level-${level}" style="min-width:80px">${level}</span>
+      <span style="color:var(--muted);font-size:0.8em">${blocks}</span>
+    </div>`;
+  }).join("");
+
+  // Blocked ends
+  const gaps = ends.filter(e => e.score < 5);
+  const heavyCosts = means.filter(m => m.burden >= 6);
+  const blocked = [];
+  heavyCosts.forEach(cost => {
+    cost.blocks.forEach(domCode => {
+      const gap = gaps.find(g => g.code === domCode);
+      if (gap) {
+        blocked.push({ end: gap, cost: cost });
+      }
+    });
+  });
+
+  if (blocked.length > 0) {
+    document.getElementById("blocked-section").style.display = "block";
+    document.getElementById("blocked-results").innerHTML = blocked.map(b =>
+      `<div class="blocked-item">
+        <strong>${b.end.name}</strong> (${b.end.score}/10) blocked by <strong>${b.cost.name}</strong> (burden ${b.cost.burden}/10)<br>
+        <span style="color:var(--muted)">→ Reduce ${b.cost.name} burden to unlock ${b.end.name}</span>
+      </div>`
+    ).join("");
+  } else {
+    document.getElementById("blocked-section").style.display = "none";
+  }
+
+  // Fungibility calculus
+  const surpluses = means.filter(m => m.burden <= 4);
+  const deficits = means.filter(m => m.burden >= 6);
+  const exchanges = [];
+  surpluses.forEach(give => {
+    deficits.forEach(receive => {
+      if (give.code === receive.code) return;
+      const rate = EXCHANGE_RATES[give.code]?.[receive.code] || 0;
+      if (rate < 0.3) return;
+      const unlocks = receive.blocks.filter(d => gaps.some(g => g.code === d));
+      const severity = receive.burden / 10;
+      const headroom = (10 - give.burden) / 10;
+      const priority = rate * severity * Math.max(unlocks.length, 1) * headroom;
+      const key = `${give.code}→${receive.code}`;
+      exchanges.push({
+        give: give.code, giveName: give.name,
+        receive: receive.code, receiveName: receive.name,
+        rate, priority, unlocks,
+        desc: EXCHANGE_DESC[key] || `Convert ${give.name} surplus to reduce ${receive.name} burden`,
+      });
+    });
+  });
+  exchanges.sort((a, b) => b.priority - a.priority);
+
+  if (exchanges.length > 0) {
+    document.getElementById("exchange-section").style.display = "block";
+    document.getElementById("exchange-results").innerHTML = exchanges.slice(0, 5).map((ex, i) => {
+      const unlockNames = ex.unlocks.map(d => DOMAINS.find(dm=>dm.code===d)?.name||d).join(", ");
+      return `<div class="exchange-item">
+        <strong>${i+1}. ${ex.giveName} → ${ex.receiveName}</strong><br>
+        ${ex.desc}<br>
+        <span class="exchange-priority">Efficiency: ${Math.round(ex.rate*100)}% · Priority: ${ex.priority.toFixed(2)}${unlockNames ? ` · Unlocks: ${unlockNames}` : ""}</span>
+      </div>`;
+    }).join("");
+  } else {
+    document.getElementById("exchange-section").style.display = "none";
+  }
+
+  // Frontpage recommendations
+  if (gaps.length > 0) {
+    document.getElementById("frontpage-section").style.display = "block";
+    document.getElementById("frontpage-results").innerHTML =
+      `<p style="color:var(--muted);margin-bottom:8px">Find research, tools, and datasets for your gap domains:</p>` +
+      gaps.map(g =>
+        `<div class="frontpage-rec">$ frontpage suggest ${g.code} &nbsp;&nbsp; # ${g.name}</div>`
+      ).join("") +
+      `<div class="frontpage-rec" style="border-color:var(--green);margin-top:12px">$ pip install frontpage &nbsp;&nbsp; # Install the hedonic content discovery feed</div>`;
+  } else {
+    document.getElementById("frontpage-section").style.display = "none";
+  }
+
+  // Store for download
+  window._assessment = { ends, means, hedonicIndex, costIndex, netHedonic, blocked, exchanges: exchanges.slice(0,5), timestamp: new Date().toISOString() };
+}
+
+function downloadAssessment() {
+  if (!window._assessment) return;
+  const blob = new Blob([JSON.stringify(window._assessment, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `altpath-assessment-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
