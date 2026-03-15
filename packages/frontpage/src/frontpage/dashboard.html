@@ -76,15 +76,20 @@
   .feed-why { font-size: 0.78em; color: var(--green); font-style: italic; margin-bottom: 6px; }
   .feed-url { font-size: 0.78em; color: var(--accent); text-decoration: none; }
 
-  /* Grading */
-  .grade-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-  .grade-label { font-size: 0.75em; color: var(--muted); }
-  .grade-slider { width: 80px; accent-color: var(--accent); }
-  .grade-value { font-size: 0.8em; font-weight: bold; min-width: 20px; }
-  .grade-btn { background: var(--green); color: #fff; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75em; cursor: pointer; }
-  .grade-btn:hover { opacity: 0.9; }
-  .grade-result { font-size: 0.8em; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
-  .graded { opacity: 0.7; }
+  /* Reactions */
+  .react-row { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .react-btn { background: var(--bg); border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 16px; font-size: 0.75em; cursor: pointer; transition: all 0.2s; }
+  .react-btn:hover { border-color: var(--accent); color: var(--text); }
+  .react-btn.positive:hover { border-color: var(--green); color: var(--green); }
+  .react-btn.negative:hover { border-color: var(--red); color: var(--red); }
+  .react-btn.selected { font-weight: 600; }
+  .react-btn.selected.positive { background: rgba(63,185,80,0.15); border-color: var(--green); color: var(--green); }
+  .react-btn.selected.negative { background: rgba(248,81,73,0.1); border-color: var(--red); color: var(--red); }
+  .react-result { font-size: 0.8em; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+  .graded { }
+  .reaction-label { font-size: 0.7em; color: var(--muted); margin-top: 2px; }
+  .pattern-bar { display: flex; gap: 4px; margin-top: 12px; }
+  .pattern-item { font-size: 0.7em; padding: 2px 8px; border-radius: 10px; background: rgba(248,81,73,0.1); color: var(--red); }
 
   /* Add panel */
   .add-panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
@@ -359,11 +364,19 @@ function renderFeedItem(item) {
     ${item.summary ? `<div class="feed-summary">${item.summary}</div>` : ''}
     ${item.why ? `<div class="feed-why">${item.why}</div>` : ''}
     ${item.url ? `<a href="${item.url}" class="feed-url" target="_blank">${item.url}</a>` : ''}
-    ${!isGraded ? `<div class="grade-row">
-      <span class="grade-label">Purpose:</span><input type="range" class="grade-slider" min="1" max="10" value="5" id="gp-${id}" oninput="document.getElementById('gpv-${id}').textContent=this.value"><span class="grade-value" id="gpv-${id}">5</span>
-      <span class="grade-label">Cost Eff:</span><input type="range" class="grade-slider" min="1" max="10" value="5" id="gc-${id}" oninput="document.getElementById('gcv-${id}').textContent=this.value"><span class="grade-value" id="gcv-${id}">5</span>
-      <button class="grade-btn" onclick="gradeItem('${item.title.replace(/'/g,"\\'")}','${id}')">Grade</button>
-    </div>` : ''}
+    ${!isGraded ? `<div class="react-row">
+      <button class="react-btn positive" onclick="react('${item.title.replace(/'/g,"\\'")}','love','')">&#x1f49a; I love this</button>
+      <button class="react-btn positive" onclick="react('${item.title.replace(/'/g,"\\'")}','trying','')">&#x1f4aa; I'll try it</button>
+      <button class="react-btn positive" onclick="react('${item.title.replace(/'/g,"\\'")}','already','')">&#x2705; Already do this</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','no_time','T')">&#x23f0; No time</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','too_expensive','F')">&#x1f4b8; Too expensive</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','too_hard','A')">&#x1f9e0; Too complicated</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','no_energy','P')">&#x1f6cb; No energy</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','not_me','X')">&#x1f645; Not my style</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','no_willpower','A')">&#x1f61e; Can't stick to it</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','awkward','S')">&#x1f647; Socially awkward</button>
+      <button class="react-btn negative" onclick="react('${item.title.replace(/'/g,"\\'")}','dont_know','K')">&#x2753; Don't know how</button>
+    </div>` : `<div class="react-row"><span class="reaction-label">You said: ${isGraded.reactionLabel}</span></div>`}
   </div>`;
 }
 
@@ -386,33 +399,148 @@ function filterFeed(type, btn) {
   renderFeed();
 }
 
-function gradeItem(title, id) {
-  const purpose = parseInt(document.getElementById('gp-' + id)?.value || 5);
-  const costEff = parseInt(document.getElementById('gc-' + id)?.value || 5);
-  const item = feedItems.find(f => f.title === title);
-  const relevance = item ? item.score / 2 : 0; // Normalize feed score to 0-10ish
-  const avg = (purpose + costEff + Math.min(relevance, 10)) / 3;
-  let grade;
-  if (avg >= 9) grade = 'A+'; else if (avg >= 8) grade = 'A'; else if (avg >= 7) grade = 'B+';
-  else if (avg >= 6) grade = 'B'; else if (avg >= 5) grade = 'C+'; else if (avg >= 4) grade = 'C';
-  else if (avg >= 3) grade = 'D'; else grade = 'F';
+// Reaction labels and their cost mappings
+const REACTIONS = {
+  // Positive
+  love:         { label: "I love this",       sentiment: "positive", cost: "",  emoji: "\u{1f49a}" },
+  trying:       { label: "I'll try it",       sentiment: "positive", cost: "",  emoji: "\u{1f4aa}" },
+  already:      { label: "Already do this",   sentiment: "positive", cost: "",  emoji: "\u{2705}" },
+  // Negative — each maps to a cost category
+  no_time:      { label: "No time",           sentiment: "negative", cost: "T", emoji: "\u{23f0}" },
+  too_expensive:{ label: "Too expensive",     sentiment: "negative", cost: "F", emoji: "\u{1f4b8}" },
+  too_hard:     { label: "Too complicated",   sentiment: "negative", cost: "A", emoji: "\u{1f9e0}" },
+  no_energy:    { label: "No energy",         sentiment: "negative", cost: "P", emoji: "\u{1f6cb}" },
+  not_me:       { label: "Not my style",      sentiment: "negative", cost: "X", emoji: "\u{1f645}" },
+  no_willpower: { label: "Can't stick to it", sentiment: "negative", cost: "A", emoji: "\u{1f61e}" },
+  awkward:      { label: "Socially awkward",  sentiment: "negative", cost: "S", emoji: "\u{1f647}" },
+  dont_know:    { label: "Don't know how",    sentiment: "negative", cost: "K", emoji: "\u{2753}" },
+};
 
-  gradedItems[title] = { grade, purpose, costEff, relevance: Math.min(relevance, 10), title, type: item?.type || 'content', domains: item?.domains || [], costs: item?.costs || [], gradedAt: new Date().toISOString() };
+function react(title, reactionKey, costCode) {
+  const reaction = REACTIONS[reactionKey];
+  const item = feedItems.find(f => f.title === title);
+
+  gradedItems[title] = {
+    title,
+    reaction: reactionKey,
+    reactionLabel: `${reaction.emoji} ${reaction.label}`,
+    sentiment: reaction.sentiment,
+    revealedCost: costCode,
+    revealedCostName: costCode ? COSTS[costCode] : '',
+    type: item?.type || 'content',
+    domains: item?.domains || [],
+    costs: item?.costs || [],
+    score: item?.score || 0,
+    gradedAt: new Date().toISOString(),
+  };
   renderAll();
+}
+
+function getPatterns() {
+  const reactions = Object.values(gradedItems);
+  const positive = reactions.filter(r => r.sentiment === 'positive');
+  const negative = reactions.filter(r => r.sentiment === 'negative');
+
+  // Count revealed cost barriers
+  const costBarriers = {};
+  negative.forEach(r => {
+    if (r.revealedCost) {
+      costBarriers[r.revealedCost] = (costBarriers[r.revealedCost] || 0) + 1;
+    }
+  });
+
+  // Count reaction types
+  const reactionCounts = {};
+  reactions.forEach(r => {
+    reactionCounts[r.reaction] = (reactionCounts[r.reaction] || 0) + 1;
+  });
+
+  // Sort barriers by frequency
+  const topBarriers = Object.entries(costBarriers)
+    .sort((a, b) => b[1] - a[1])
+    .map(([code, count]) => ({ code, name: COSTS[code], count }));
+
+  return {
+    total: reactions.length,
+    positive: positive.length,
+    negative: negative.length,
+    acceptRate: reactions.length ? Math.round(positive.length / reactions.length * 100) : 0,
+    topBarriers,
+    reactionCounts,
+  };
 }
 
 function renderGraded() {
   const container = document.getElementById('graded-container');
-  const items = Object.values(gradedItems).sort((a,b) => b.purpose - a.purpose);
-  if (!items.length) { container.innerHTML = '<div class="empty-state">No items graded yet.</div>'; return; }
-  let html = '<div style="margin-bottom:16px"><button class="add-btn" onclick="downloadGrades()" style="background:var(--accent)">Download Grades (JSON)</button></div>';
-  items.forEach(g => {
-    const color = g.grade.startsWith('A') ? 'var(--green)' : g.grade.startsWith('B') ? 'var(--accent)' : g.grade.startsWith('C') ? 'var(--yellow)' : 'var(--red)';
-    html += `<div class="feed-item" style="border-left:3px solid ${color}">
-      <div class="feed-header"><span class="feed-title">${g.title}</span><span style="font-size:1.2em;font-weight:bold;color:${color}">${g.grade}</span></div>
-      <div style="font-size:0.8em;color:var(--muted)">Purpose: ${g.purpose}/10 · Cost Efficiency: ${g.costEff}/10 · Relevance: ${g.relevance.toFixed(1)}/10</div>
-    </div>`;
-  });
+  const items = Object.values(gradedItems);
+  if (!items.length) { container.innerHTML = '<div class="empty-state">React to items in the feed to see your patterns here.</div>'; return; }
+
+  const patterns = getPatterns();
+
+  let html = '';
+
+  // Pattern analysis
+  html += `<div class="exchange-card primary" style="margin-bottom:20px">
+    <div class="exchange-header">
+      <span class="exchange-title">Your Reaction Patterns</span>
+      <span class="exchange-badge">${patterns.total} reactions</span>
+    </div>
+    <div style="display:flex;gap:20px;margin:12px 0">
+      <div style="text-align:center"><span style="font-size:1.8em;color:var(--green)">${patterns.positive}</span><br><span style="font-size:0.75em;color:var(--muted)">Accepted</span></div>
+      <div style="text-align:center"><span style="font-size:1.8em;color:var(--red)">${patterns.negative}</span><br><span style="font-size:0.75em;color:var(--muted)">Rejected</span></div>
+      <div style="text-align:center"><span style="font-size:1.8em;color:var(--accent)">${patterns.acceptRate}%</span><br><span style="font-size:0.75em;color:var(--muted)">Accept Rate</span></div>
+    </div>
+    ${patterns.topBarriers.length ? `
+      <div style="margin-top:8px">
+        <div style="font-size:0.8em;color:var(--muted);margin-bottom:6px">Your revealed cost barriers (why you say no):</div>
+        ${patterns.topBarriers.map(b => `
+          <div style="display:flex;align-items:center;gap:8px;margin:4px 0">
+            <span class="pattern-item">${b.name} (${b.code})</span>
+            <div style="background:var(--red);height:8px;border-radius:4px;width:${b.count*40}px"></div>
+            <span style="font-size:0.75em;color:var(--muted)">${b.count}x</span>
+          </div>
+        `).join('')}
+        <div style="font-size:0.78em;color:var(--accent);margin-top:8px;font-style:italic">
+          ${patterns.topBarriers[0] ? `Your #1 barrier is ${patterns.topBarriers[0].name}. This may be a deeper constraint than your self-assessment revealed. Consider re-scoring ${patterns.topBarriers[0].name} burden in altpath.` : ''}
+        </div>
+      </div>
+    ` : ''}
+  </div>`;
+
+  // Download button
+  html += '<div style="margin-bottom:16px"><button class="add-btn" onclick="downloadGrades()" style="background:var(--accent)">Download Reactions (JSON)</button></div>';
+
+  // Positive reactions
+  const pos = items.filter(i => i.sentiment === 'positive');
+  if (pos.length) {
+    html += '<h3 style="color:var(--green);margin:12px 0 8px;font-size:0.9em">Accepted</h3>';
+    pos.forEach(g => {
+      html += `<div class="feed-item" style="border-left:3px solid var(--green)">
+        <div class="feed-header"><span class="feed-title">${g.title}</span><span style="color:var(--green)">${g.reactionLabel}</span></div>
+      </div>`;
+    });
+  }
+
+  // Negative reactions grouped by barrier
+  const neg = items.filter(i => i.sentiment === 'negative');
+  if (neg.length) {
+    html += '<h3 style="color:var(--red);margin:16px 0 8px;font-size:0.9em">Rejected — by barrier</h3>';
+    const byBarrier = {};
+    neg.forEach(g => {
+      const key = g.revealedCost || '?';
+      byBarrier[key] = byBarrier[key] || [];
+      byBarrier[key].push(g);
+    });
+    Object.entries(byBarrier).forEach(([cost, items]) => {
+      html += `<div style="font-size:0.8em;color:var(--red);margin:8px 0 4px;font-weight:600">${COSTS[cost] || cost} barrier:</div>`;
+      items.forEach(g => {
+        html += `<div class="feed-item" style="border-left:3px solid var(--red)">
+          <div class="feed-header"><span class="feed-title">${g.title}</span><span style="color:var(--red)">${g.reactionLabel}</span></div>
+        </div>`;
+      });
+    });
+  }
+
   container.innerHTML = html;
 }
 
