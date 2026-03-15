@@ -2,16 +2,16 @@
 status: DRAFT — ready for Bruce's review and edit before posting
 target: LinkedIn
 tone: Thought leadership — thank inspirations, announce tools, invite community
-tags_to_use: Andy Cotgreave (@acotgreave), Drew Breunig (@drewbreunig)
+tags_to_use: Drew Breunig (@drewbreunig)
 ---
 
 # LinkedIn Post — High Noon Announcement v2
 
 ---
 
-Thank you @Andy Cotgreave and @Drew Breunig — your work directly inspired what I'm releasing today.
+Thank you @Drew Breunig — your work directly inspired what I'm releasing today.
 
-Andy, your thinking on how we communicate data reminded me that the *what* of visualization matters less than the *why* — who benefits and what human outcome improves? Drew, your Spec-Driven Development Triangle and Plumb tool asked the right question: how do we keep specs, tests, and code in sync? But it left a bigger question open: who asks whether the software serves its PURPOSE?
+Your Spec-Driven Development Triangle and Plumb tool asked the right question: how do we keep specs, tests, and code in sync? But it left a bigger question open: who asks whether the software serves its PURPOSE?
 
 That question became a framework. And the framework became five open-source tools.
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "altpath"
-version = "0.1.1"
+version = "0.1.2"
 description = "Open-source personal hedonic life assessment — discover your optimal path across 10 life domains"
 readme = "README.md"
 license = "MIT"
