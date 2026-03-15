@@ -122,6 +122,26 @@ def hedonic_index() -> dict:
 
 
 @mcp.tool
+def optimize(max_recommendations: int = 5) -> dict:
+    """Run the fungibility calculus on your assessed cost profile.
+
+    Computes which exchanges between your surplus and deficit means
+    would unlock the most hedonic value. Trade what you HAVE for what you NEED.
+
+    Example: If you have low FINANCIAL burden (surplus money) but high TIME burden
+    (no free time), it recommends: F → T (buy time with money — hire help, automate).
+    If that TIME burden blocks CONNECTION and RECREATION, those domains unlock.
+
+    Must score cost burdens first using score_means()."""
+    recommendations = _assessment.optimize(max_recommendations)
+    return {
+        "recommendations": recommendations,
+        "note": "These are fungibility exchanges — trade surplus means to reduce deficit means. "
+                "Then search highnoon for tools that facilitate each exchange.",
+    }
+
+
+@mcp.tool
 def full_assessment() -> dict:
     """Get the complete assessment — all ends, means, gaps, heavy costs, and blocked ends."""
     return _assessment.to_dict()

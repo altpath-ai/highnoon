@@ -13,6 +13,7 @@ access to the hedonic domains you need.
 from dataclasses import dataclass, field
 from hedonics.taxonomy import DOMAINS, list_domains
 from hedonics.hqc import COST_CATEGORIES
+from hedonics.fungibility import CostProfile, compute_exchanges
 
 
 @dataclass
@@ -174,6 +175,20 @@ class Assessment:
         return [f"{code} {name}" for code, name in COST_CATEGORIES.items()
                 if code not in self.cost_burdens]
 
+    def optimize(self, max_recommendations: int = 5) -> list[dict]:
+        """Run the fungibility calculus on the assessed cost profile.
+        Returns prioritized exchanges: trade what you have for what you need."""
+        if not self.cost_burdens:
+            return [{"note": "Score your cost burdens first (score_cost) before optimizing."}]
+
+        profile = CostProfile(
+            burdens={cat: c.burden for cat, c in self.cost_burdens.items()},
+            blocks={cat: c.blocks_domains for cat, c in self.cost_burdens.items()
+                    if c.blocks_domains},
+        )
+        exchanges = compute_exchanges(profile)
+        return [ex.to_dict() for ex in exchanges[:max_recommendations]]
+
     def to_dict(self) -> dict:
         return {
             "hedonic_index": round(self.hedonic_index(), 1),
@@ -209,4 +224,5 @@ class Assessment:
             "blocked_ends": self.blocked_ends(),
             "unscored_domains": self.unscored_domains(),
             "unscored_costs": self.unscored_costs(),
+            "optimization": self.optimize(),
         }

@@ -14,6 +14,9 @@ from hedonics.hqc import (
     COST_CATEGORIES, COST_SUBCATEGORIES, COST_MODIFIERS,
     list_all_costs, get_cost_subcategories,
 )
+from hedonics.fungibility import (
+    CostProfile, compute_exchanges, EXCHANGE_RATES, EXCHANGE_DESCRIPTIONS,
+)
 
 # Which costs typically block access to which domains
 DOMAIN_BLOCKERS = {
@@ -203,6 +206,99 @@ def quality_modifiers() -> list[str]:
 def cost_modifiers() -> list[str]:
     """List all cost modifier dimensions (MEANS side): direction, magnitude, distribution, etc."""
     return COST_MODIFIERS
+
+
+# === FUNGIBILITY CALCULUS ===
+
+@mcp.tool
+def optimize(burdens: dict, blocked_by: dict = None) -> dict:
+    """Run the fungibility calculus on a cost profile.
+
+    Given a person's cost burdens, compute which exchanges between
+    fungible means would unlock the most hedonic value.
+
+    Args:
+        burdens: Dict of cost category → burden score (1-10).
+                 E.g., {"T": 8, "F": 3, "A": 7, "K": 2, "X": 4}
+        blocked_by: Optional dict of cost category → list of hedonic domain codes it blocks.
+                    E.g., {"T": ["07", "08"], "A": ["06", "09"]}
+
+    Returns:
+        Prioritized list of recommended exchanges with efficiency rates.
+
+    Example:
+        optimize(
+            burdens={"T": 8, "F": 3, "A": 7, "K": 2},
+            blocked_by={"T": ["07", "08"], "A": ["06"]}
+        )
+        → "K → A (Knowledge reduces cognitive load, efficiency 70%, unlocks GROWTH)"
+        → "F → T (Buy time with money, efficiency 70%, unlocks CONNECTION, RECREATION)"
+    """
+    profile = CostProfile(
+        burdens=burdens,
+        blocks=blocked_by or {},
+    )
+    exchanges = compute_exchanges(profile)
+    return {
+        "surpluses": profile.surplus_categories(),
+        "deficits": profile.deficit_categories(),
+        "available_for_trade": profile.available_for_trade(),
+        "recommendations": [ex.to_dict() for ex in exchanges[:7]],
+        "total_exchanges_found": len(exchanges),
+    }
+
+
+@mcp.tool
+def exchange_rate(give: str, receive: str) -> dict:
+    """Look up the exchange rate between two cost types.
+
+    How efficiently can you convert surplus in one cost type
+    to reduce burden in another?
+
+    Args:
+        give: Cost category you have surplus of (T, F, A, P, S, E, R, K, X)
+        receive: Cost category you need to reduce
+
+    Returns:
+        Exchange rate (0-1), description, and interpretation.
+    """
+    give = give.upper()
+    receive = receive.upper()
+    rate = EXCHANGE_RATES.get(give, {}).get(receive, 0.0)
+    desc = EXCHANGE_DESCRIPTIONS.get(
+        (give, receive),
+        f"Convert {COST_CATEGORIES.get(give, give)} to reduce {COST_CATEGORIES.get(receive, receive)}"
+    )
+    if rate >= 0.7:
+        interpretation = "Highly efficient exchange — strong conversion path"
+    elif rate >= 0.4:
+        interpretation = "Moderate efficiency — viable but with some friction"
+    elif rate >= 0.2:
+        interpretation = "Low efficiency — possible but costly conversion"
+    else:
+        interpretation = "Near-impossible exchange — these resources don't convert well"
+    return {
+        "give": {"code": give, "name": COST_CATEGORIES.get(give, give)},
+        "receive": {"code": receive, "name": COST_CATEGORIES.get(receive, receive)},
+        "rate": rate,
+        "description": desc,
+        "interpretation": interpretation,
+    }
+
+
+@mcp.tool
+def exchange_matrix() -> dict:
+    """Show the full exchange rate matrix between all 9 cost types.
+    Useful for understanding which resource conversions are efficient."""
+    cats = list(COST_CATEGORIES.keys())
+    return {
+        "categories": {k: v for k, v in COST_CATEGORIES.items()},
+        "matrix": {
+            give: {receive: EXCHANGE_RATES[give][receive] for receive in cats}
+            for give in cats
+        },
+        "reading": "Row = what you GIVE. Column = what you RECEIVE. Value = conversion efficiency (0-1).",
+    }
 
 
 # === RESOURCES ===

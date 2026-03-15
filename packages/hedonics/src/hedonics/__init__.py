@@ -13,3 +13,4 @@ __version__ = "0.1.1"
 from hedonics.taxonomy import DOMAINS, get_domain, list_domains
 from hedonics.htc import HTC
 from hedonics.hqc import HQC, HQCM, list_all_costs, get_cost_subcategories
+from hedonics.fungibility import CostProfile, Exchange, compute_exchanges
