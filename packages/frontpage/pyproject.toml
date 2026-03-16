@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "frontpage"
-version = "0.1.3"
+version = "0.1.4"
 description = "The front page of your hedonic life — content discovery ranked by YOUR needs, not engagement"
 readme = "README.md"
 license = "MIT"
